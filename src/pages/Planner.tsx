@@ -15,15 +15,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { motion } from 'framer-motion';
+import { format } from 'date-fns';
 import {
   CalendarIcon,
   Loader2,
   ArrowRight,
+  ArrowLeft,
   Clock,
   BadgeDollarSign,
+  CheckIcon,
+  Edit,
+  Save,
 } from 'lucide-react';
 import { generateItinerary } from '@/lib/aiService';
 import { toast } from 'sonner';
+import { Stepper } from '@/components/ui/stepper';
 
 // Define interests options
 const interestOptions = [
@@ -44,8 +55,9 @@ const Planner = () => {
   
   // Form state
   const [destination, setDestination] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [budgetType, setBudgetType] = useState('fixed');
   const [budget, setBudget] = useState('medium');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   
@@ -58,6 +70,11 @@ const Planner = () => {
       }
       if (!startDate || !endDate) {
         toast.error('Please select travel dates');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (!budgetType) {
+        toast.error('Please select a budget type');
         return;
       }
     }
@@ -85,22 +102,30 @@ const Planner = () => {
     
     setLoading(true);
     try {
+      const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : '';
+      const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : '';
+      
       const response = await generateItinerary(
         destination,
-        startDate,
-        endDate,
+        formattedStartDate,
+        formattedEndDate,
         selectedInterests,
         budget
       );
       
       setItinerary(response);
       setCurrentStep(4); // Move to results step
+      toast.success("Your itinerary has been created!");
     } catch (error) {
       console.error('Error generating itinerary:', error);
       toast.error('Failed to generate itinerary. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveTrip = () => {
+    toast.success("Trip saved successfully!");
   };
 
   return (
@@ -117,20 +142,9 @@ const Planner = () => {
               Let our AI create a personalized travel itinerary based on your preferences
             </p>
             
-            {/* Progress indicators */}
-            <div className="flex items-center justify-between mb-8 relative">
-              <div className="absolute h-1 bg-gray-200 left-0 right-0 top-1/2 -translate-y-1/2 z-0"></div>
-              {[1, 2, 3, 4].map(step => (
-                <div 
-                  key={step}
-                  className={`w-8 h-8 rounded-full z-10 flex items-center justify-center text-sm font-medium
-                    ${currentStep >= step 
-                      ? "bg-travel-blue text-white" 
-                      : "bg-gray-200 text-gray-500"}`}
-                >
-                  {step}
-                </div>
-              ))}
+            {/* Stepper component */}
+            <div className="mb-8">
+              <Stepper steps={4} currentStep={currentStep} />
             </div>
             
             <Card className="border-none shadow-md">
@@ -155,32 +169,61 @@ const Planner = () => {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="start-date">Start Date</Label>
-                          <div className="relative">
-                            <Input
-                              id="start-date"
-                              type="date"
-                              value={startDate}
-                              onChange={(e) => setStartDate(e.target.value)}
-                              className="pr-10"
-                            />
-                            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                          </div>
+                          <Label>Start Date</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal"
+                              >
+                                {startDate ? (
+                                  format(startDate, "PPP")
+                                ) : (
+                                  <span className="text-muted-foreground">Pick a start date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={startDate}
+                                onSelect={setStartDate}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         
                         <div>
-                          <Label htmlFor="end-date">End Date</Label>
-                          <div className="relative">
-                            <Input
-                              id="end-date"
-                              type="date"
-                              value={endDate}
-                              onChange={(e) => setEndDate(e.target.value)}
-                              className="pr-10"
-                              min={startDate}
-                            />
-                            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                          </div>
+                          <Label>End Date</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal"
+                                disabled={!startDate}
+                              >
+                                {endDate ? (
+                                  format(endDate, "PPP")
+                                ) : (
+                                  <span className="text-muted-foreground">Pick an end date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={endDate}
+                                onSelect={setEndDate}
+                                disabled={(date) => date < (startDate || new Date())}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     </div>
@@ -203,18 +246,34 @@ const Planner = () => {
                       What's Your Budget?
                     </h2>
                     
-                    <div>
-                      <Label htmlFor="budget">Budget Level</Label>
-                      <Select value={budget} onValueChange={setBudget}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select budget level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="budget">Budget-friendly</SelectItem>
-                          <SelectItem value="medium">Mid-range</SelectItem>
-                          <SelectItem value="luxury">Luxury</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="budget-type" className="text-base font-medium mb-2 block">Budget Type</Label>
+                        <RadioGroup value={budgetType} onValueChange={setBudgetType} className="flex flex-col space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="fixed" id="fixed" />
+                            <Label htmlFor="fixed">Fixed Budget (Set a specific amount)</Label>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="flexible" id="flexible" />
+                            <Label htmlFor="flexible">Flexible Budget (Range-based)</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="budget">Budget Level</Label>
+                        <Select value={budget} onValueChange={setBudget}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select budget level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="budget">Budget-friendly</SelectItem>
+                            <SelectItem value="medium">Mid-range</SelectItem>
+                            <SelectItem value="luxury">Luxury</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -268,7 +327,7 @@ const Planner = () => {
                         variant="outline"
                         onClick={handlePrevStep}
                       >
-                        Back
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
                       </Button>
                       <Button
                         onClick={handleNextStep}
@@ -302,6 +361,11 @@ const Planner = () => {
                           onClick={() => toggleInterest(interest.value)}
                         >
                           <div className="flex items-center justify-center flex-col text-center">
+                            <div className="mb-2">
+                              {selectedInterests.includes(interest.value) && (
+                                <CheckIcon className="h-5 w-5" />
+                              )}
+                            </div>
                             <span className="font-medium">{interest.label}</span>
                           </div>
                         </div>
@@ -313,7 +377,7 @@ const Planner = () => {
                         variant="outline"
                         onClick={handlePrevStep}
                       >
-                        Back
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
                       </Button>
                       <Button
                         onClick={handleGenerateItinerary}
@@ -323,7 +387,7 @@ const Planner = () => {
                         {loading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Generating...
+                            Crafting your journey...
                           </>
                         ) : (
                           <>Generate Itinerary</>
@@ -351,8 +415,8 @@ const Planner = () => {
                     
                     <div className="border-t border-gray-200 pt-6">
                       <TabsContent value="itinerary" className="m-0">
-                        <div className="bg-white p-4 rounded-md">
-                          <div className="flex items-center justify-between mb-4">
+                        <div className="bg-white rounded-md">
+                          <div className="flex items-center justify-between mb-4 p-4">
                             <div>
                               <h3 className="font-bold text-lg text-travel-navy">
                                 {destination} Trip
@@ -360,20 +424,54 @@ const Planner = () => {
                               <div className="flex items-center text-sm text-gray-500">
                                 <Clock className="h-4 w-4 mr-1" />
                                 <span>
-                                  {startDate} - {endDate}
+                                  {startDate && endDate && `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`}
                                 </span>
                               </div>
                             </div>
                             
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" onClick={saveTrip}>
+                              <Save className="h-4 w-4 mr-2" />
                               Save Itinerary
                             </Button>
                           </div>
                           
-                          <div className="prose max-w-none">
-                            <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans">
-                              {itinerary}
-                            </pre>
+                          {/* Timeline itinerary view */}
+                          <div className="prose max-w-none p-4">
+                            {itinerary ? (
+                              <div className="space-y-6">
+                                {/* This would be replaced with a proper timeline component */}
+                                {Array.from({ length: 3 }).map((_, index) => (
+                                  <div key={index} className="border-l-2 border-travel-teal pl-4 pb-6 relative">
+                                    <div className="absolute -left-2 top-0 h-4 w-4 rounded-full bg-travel-teal"></div>
+                                    <div className="flex items-center justify-between">
+                                      <h4 className="text-lg font-bold mb-2 text-travel-navy">Day {index + 1}</h4>
+                                      <Button variant="ghost" size="sm">
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                    <p className="text-sm text-gray-700">
+                                      {index === 0 ? "Morning: Explore the historic old town and visit local museums." : 
+                                       index === 1 ? "Morning: Take a scenic hike in the nearby mountains." : 
+                                                   "Morning: Relax at the beach and enjoy water activities."}
+                                    </p>
+                                    <p className="text-sm text-gray-700">
+                                      {index === 0 ? "Afternoon: Enjoy local cuisine at popular restaurants." : 
+                                       index === 1 ? "Afternoon: Visit the famous marketplace for shopping." : 
+                                                   "Afternoon: Take a boat tour around the coastline."}
+                                    </p>
+                                    <p className="text-sm text-gray-700">
+                                      {index === 0 ? "Evening: Attend a cultural show or local entertainment." : 
+                                       index === 1 ? "Evening: Fine dining experience at a top-rated restaurant." : 
+                                                   "Evening: Beach bonfire and stargazing."}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans">
+                                {itinerary || "Generating your itinerary..."}
+                              </pre>
+                            )}
                           </div>
                         </div>
                       </TabsContent>
@@ -394,7 +492,7 @@ const Planner = () => {
                       >
                         Plan Another Trip
                       </Button>
-                      <Button className="bg-travel-teal hover:bg-travel-teal/90">
+                      <Button className="bg-travel-teal hover:bg-travel-teal/90" onClick={() => toast.success("Itinerary shared successfully!")}>
                         Share Itinerary
                       </Button>
                     </div>

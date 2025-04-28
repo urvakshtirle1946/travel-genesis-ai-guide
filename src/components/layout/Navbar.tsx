@@ -57,11 +57,17 @@ const Navbar: React.FC = () => {
           )}>
             Trip Planner
           </Link>
-          <Link to="/marketplace" className={cn(
+          <Link to="/booking" className={cn(
             "transition-colors hover:text-travel-teal", 
             (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
           )}>
-            Marketplace
+            Bookings
+          </Link>
+          <Link to="/budget-tracker" className={cn(
+            "transition-colors hover:text-travel-teal", 
+            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+          )}>
+            Budget
           </Link>
         </nav>
 
@@ -100,14 +106,23 @@ const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg absolute w-full py-4">
           <nav className="container flex flex-col space-y-4 pb-4">
-            <Link to="/explore" className="text-gray-700 hover:text-travel-teal">
+            <Link to="/explore" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
               Explore
             </Link>
-            <Link to="/planner" className="text-gray-700 hover:text-travel-teal">
+            <Link to="/planner" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
               Trip Planner
             </Link>
-            <Link to="/marketplace" className="text-gray-700 hover:text-travel-teal">
-              Marketplace
+            <Link to="/booking" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+              Bookings
+            </Link>
+            <Link to="/budget-tracker" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+              Budget Tracker
+            </Link>
+            <Link to="/documents" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+              Documents
+            </Link>
+            <Link to="/group-expenses" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+              Group Expenses
             </Link>
             <div className="pt-2 flex space-x-4">
               <Button variant="ghost" size="sm" onClick={handleSignIn}>
