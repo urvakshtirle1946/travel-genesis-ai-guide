@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Loader2, Filter, MapPin, Star } from 'lucide-react';
 import { generateDestinationIdeas } from '@/lib/aiService';
+import { toast } from "sonner";
 
 // Placeholder destination data
 const initialDestinations = [
@@ -87,8 +88,10 @@ const Explore: React.FC = () => {
         try {
           const suggestions = await generateDestinationIdeas(query);
           setAiSuggestion(suggestions);
+          toast.success("AI suggestions generated successfully!");
         } catch (error) {
           console.error('Error fetching ideas:', error);
+          toast.error("Could not generate AI suggestions. Please try again.");
         } finally {
           setIsLoading(false);
         }
@@ -103,8 +106,10 @@ const Explore: React.FC = () => {
     // In a real app, this would filter destinations or fetch from API
     // For now, we'll just simulate a search with a delay
     setIsLoading(true);
+    toast.info("Searching for destinations...");
     setTimeout(() => {
       setIsLoading(false);
+      toast.success(`Found results for "${searchQuery}"`);
     }, 1000);
   };
 
@@ -222,6 +227,7 @@ const Explore: React.FC = () => {
                       <Button 
                         variant="default" 
                         className="w-full bg-travel-blue hover:bg-travel-blue/90"
+                        onClick={() => toast.success(`Viewing details for ${destination.name}`)}
                       >
                         View Details
                       </Button>

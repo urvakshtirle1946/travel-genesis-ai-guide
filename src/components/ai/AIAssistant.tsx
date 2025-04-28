@@ -44,25 +44,41 @@ const AIAssistant: React.FC = () => {
     
     const userMessage = input.trim();
     setInput('');
+    
+    // Add user message to the chat
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     
     setIsLoading(true);
     try {
+      console.log("Sending message to assistant...");
       const response = await chatWithAssistant(userMessage);
+      console.log("Received response:", response);
+      
+      // Add assistant response to the chat
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
       console.error('Error getting response:', error);
       toast.error("Sorry, I'm having trouble connecting at the moment. Please try again.");
+      
+      // Add error message as an assistant response
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "I'm having trouble connecting right now. Please try again in a moment." 
+      }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleAssistant = () => {
+    setIsOpen(prev => !prev);
   };
 
   return (
     <>
       {/* Chat button floating */}
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={toggleAssistant}
         className={cn(
           "fixed z-50 rounded-full p-4 shadow-lg bg-travel-teal hover:bg-travel-teal/90 text-white",
           isOpen ? "hidden" : "flex items-center gap-2 bottom-6 right-6"
@@ -87,7 +103,7 @@ const AIAssistant: React.FC = () => {
               <h3 className="font-medium">Travel AI Assistant</h3>
             </div>
             <Button
-              onClick={() => setIsOpen(false)}
+              onClick={toggleAssistant}
               variant="ghost"
               size="icon"
               className="text-white hover:bg-travel-teal/80 h-8 w-8"
