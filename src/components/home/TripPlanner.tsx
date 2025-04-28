@@ -31,6 +31,10 @@ const features = [
 const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleCreateItinerary = () => {
+    navigate('/planner');
+  };
+
   return (
     <section className="py-16 md:py-24">
       <div className="container">
@@ -55,7 +59,7 @@ const TripPlanner: React.FC = () => {
             </div>
             
             <Button 
-              onClick={() => navigate('/planner')}
+              onClick={handleCreateItinerary}
               className="bg-travel-blue hover:bg-travel-blue/90 text-white"
               size="lg"
             >
@@ -87,7 +91,7 @@ const TripPlanner: React.FC = () => {
                             <p className="font-medium">Morning: {day === 1 ? 'Ubud Sacred Monkey Forest' : day === 2 ? 'Tegallalang Rice Terraces' : 'Uluwatu Temple'}</p>
                             <p className="text-xs text-gray-500">{day === 1 ? '9:00 AM - 11:30 AM' : day === 2 ? '8:30 AM - 11:00 AM' : '9:30 AM - 12:00 PM'}</p>
                           </div>
-                          <Badge variant="outline" size="sm" className="text-xs bg-travel-teal/10 text-travel-teal border-0">
+                          <Badge variant="outline" className="text-xs bg-travel-teal/10 text-travel-teal border-0">
                             {day === 1 ? 'Wildlife' : day === 2 ? 'Nature' : 'Culture'}
                           </Badge>
                         </div>
