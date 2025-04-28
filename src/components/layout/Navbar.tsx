@@ -2,14 +2,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Search, Map, MessageSquare, User, Menu } from "lucide-react";
+import { Search, Map, MessageSquare, User, Menu, LogOut } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { toast } from "sonner";
+import { useAuth } from '@/contexts/AuthContext';
+import AuthModal from '../auth/AuthModal';
 
 const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [authModalOpen, setAuthModalOpen] = React.useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   // Determine if we're on a page that needs a contrasted navbar
   const isExploreOrPlanner = location.pathname === '/explore' || location.pathname === '/planner';
@@ -23,7 +27,11 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleSignIn = () => {
-    toast.success("Sign in feature will be available in the next update!");
+    setAuthModalOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -69,6 +77,12 @@ const Navbar: React.FC = () => {
           )}>
             Budget
           </Link>
+          <Link to="/documents" className={cn(
+            "transition-colors hover:text-travel-teal", 
+            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+          )}>
+            Documents
+          </Link>
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -81,14 +95,26 @@ const Navbar: React.FC = () => {
           <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
             <MessageSquare className="h-5 w-5" />
           </Button>
-          <Button 
-            variant="outline" 
-            className={(scrolled || isExploreOrPlanner) ? "bg-white text-travel-navy" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
-            onClick={handleSignIn}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Sign In
-          </Button>
+          
+          {user ? (
+            <Button 
+              variant="outline" 
+              className={(scrolled || isExploreOrPlanner) ? "bg-white text-travel-navy" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              className={(scrolled || isExploreOrPlanner) ? "bg-white text-travel-navy" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
+              onClick={handleSignIn}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -124,23 +150,25 @@ const Navbar: React.FC = () => {
             <Link to="/group-expenses" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
               Group Expenses
             </Link>
+            
             <div className="pt-2 flex space-x-4">
-              <Button variant="ghost" size="sm" onClick={handleSignIn}>
-                <User className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="bg-travel-teal hover:bg-travel-teal/90"
-                onClick={() => toast.success("Sign up feature will be available in the next update!")}
-              >
-                Sign Up
-              </Button>
+              {user ? (
+                <Button variant="default" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={handleSignIn}>
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </nav>
         </div>
       )}
+
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </header>
   );
 };
