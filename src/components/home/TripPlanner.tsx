@@ -55,6 +55,15 @@ const TripPlanner: React.FC = () => {
     }
   };
 
+  const handleViewBudget = () => {
+    if (!user) {
+      toast.error("Please sign in to access the budget tracker");
+      return;
+    }
+    
+    navigate('/budget-tracker');
+  };
+
   return (
     <section className="py-16 md:py-24">
       <div className="container">
@@ -87,6 +96,14 @@ const TripPlanner: React.FC = () => {
                 Create Custom Itinerary
               </Button>
               
+              <Button 
+                onClick={handleViewBudget}
+                className="bg-travel-teal hover:bg-travel-teal/90 text-white w-full"
+                size="lg"
+              >
+                Track Your Travel Budget
+              </Button>
+              
               <div>
                 <p className="text-sm text-center text-gray-500 mb-2">Quick plan popular destinations:</p>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -115,7 +132,13 @@ const TripPlanner: React.FC = () => {
                     <h4 className="font-bold text-travel-navy">Bali Adventure</h4>
                     <p className="text-sm text-gray-500">May 15-22, 2023</p>
                   </div>
-                  <Button variant="outline" size="sm">Edit Plan</Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleCreateItinerary("Bali, Indonesia")}
+                  >
+                    Edit Plan
+                  </Button>
                 </div>
                 
                 {/* Sample itinerary item */}

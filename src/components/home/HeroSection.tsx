@@ -41,6 +41,11 @@ const HeroSection: React.FC = () => {
     }
   };
 
+  const handlePlanTrip = (destination: string) => {
+    // Navigate directly to planner with the selected popular destination
+    navigate(`/planner?destination=${encodeURIComponent(destination)}`);
+  };
+
   return (
     <section className="hero-section min-h-screen flex items-center bg-gradient-to-b from-travel-navy/80 to-travel-navy/60">
       <div className="container mx-auto px-6 py-24 md:py-32 lg:py-40">
@@ -96,6 +101,22 @@ const HeroSection: React.FC = () => {
                   {item}
                 </button>
               ))}
+            </div>
+            
+            <div className="mt-10">
+              <p className="text-white/70 mb-3">Quick plan popular destinations:</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {['Bali, Indonesia', 'Paris, France', 'Tokyo, Japan', 'New York, USA'].map((destination) => (
+                  <Button
+                    key={destination}
+                    onClick={() => handlePlanTrip(destination)}
+                    variant="outline"
+                    className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                  >
+                    Plan {destination.split(',')[0]} Trip
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

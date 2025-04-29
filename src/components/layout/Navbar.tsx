@@ -15,8 +15,9 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
 
-  // Determine if we're on a page that needs a contrasted navbar
-  const isContrastPage = location.pathname === '/explore' || location.pathname === '/planner';
+  // Always use contrasted navbar on these pages (white background)
+  const forceContrastPages = ['/explore', '/planner', '/booking', '/my-bookings', '/budget-tracker', '/documents', '/group-expenses'];
+  const isContrastPage = forceContrastPages.includes(location.pathname);
   
   React.useEffect(() => {
     const handleScroll = () => {
@@ -92,13 +93,22 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-4">
           {user && (
             <>
-              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={cn(
+                "hover:bg-gray-100", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
+              )}>
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={cn(
+                "hover:bg-gray-100", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
+              )}>
                 <Map className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={cn(
+                "hover:bg-gray-100", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
+              )}>
                 <MessageSquare className="h-5 w-5" />
               </Button>
             </>
@@ -150,6 +160,9 @@ const Navbar: React.FC = () => {
                 </Link>
                 <Link to="/booking" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
                   Bookings
+                </Link>
+                <Link to="/my-bookings" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  My Bookings
                 </Link>
                 <Link to="/budget-tracker" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
                   Budget Tracker
