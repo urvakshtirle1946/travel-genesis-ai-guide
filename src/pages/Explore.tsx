@@ -86,7 +86,9 @@ const Explore: React.FC = () => {
       if (query) {
         setIsLoading(true);
         try {
+          console.log("Fetching ideas for:", query);
           const suggestions = await generateDestinationIdeas(query);
+          console.log("Got suggestions:", suggestions ? "yes" : "no");
           setAiSuggestion(suggestions);
           toast.success("AI suggestions generated successfully!");
         } catch (error) {
@@ -103,14 +105,45 @@ const Explore: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!searchQuery.trim()) {
+      toast.error("Please enter a search term");
+      return;
+    }
+    
+    // Update the URL with the search query
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('query', searchQuery);
+    
     // In a real app, this would filter destinations or fetch from API
-    // For now, we'll just simulate a search with a delay
     setIsLoading(true);
     toast.info("Searching for destinations...");
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success(`Found results for "${searchQuery}"`);
-    }, 1000);
+    
+    // Create new URL with the updated search parameters
+    const newUrl = `${location.pathname}?${searchParams.toString()}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+    
+    // Fetch new AI suggestions
+    generateDestinationIdeas(searchQuery)
+      .then(suggestions => {
+        setAiSuggestion(suggestions);
+        toast.success(`Found results for "${searchQuery}"`);
+      })
+      .catch(error => {
+        console.error('Error fetching ideas:', error);
+        toast.error("Could not generate AI suggestions. Please try again.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  // Function to handle "View Details" button click
+  const handleViewDetails = (destination: string) => {
+    // In a real app, this would navigate to a destination details page
+    // For now, let's offer to plan a trip for this destination
+    if (confirm(`Would you like to plan a trip to ${destination}?`)) {
+      window.location.href = `/planner?destination=${encodeURIComponent(destination)}`;
+    }
   };
 
   return (
@@ -158,6 +191,17 @@ const Explore: React.FC = () => {
               </h2>
               <div className="prose max-w-none">
                 <p className="text-gray-700 whitespace-pre-line">{aiSuggestion}</p>
+              </div>
+              
+              {/* Add quick buttons to plan a trip */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = `/planner?destination=${encodeURIComponent(query)}`}
+                  className="bg-white border-travel-teal text-travel-teal hover:bg-travel-teal/10"
+                >
+                  Plan a trip based on this search
+                </Button>
               </div>
             </div>
           )}
@@ -224,13 +268,23 @@ const Explore: React.FC = () => {
                         </div>
                       </div>
                       
-                      <Button 
-                        variant="default" 
-                        className="w-full bg-travel-blue hover:bg-travel-blue/90"
-                        onClick={() => toast.success(`Viewing details for ${destination.name}`)}
-                      >
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="default" 
+                          className="w-full bg-travel-blue hover:bg-travel-blue/90"
+                          onClick={() => handleViewDetails(destination.name)}
+                        >
+                          View Details
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          className="border-travel-teal text-travel-teal hover:bg-travel-teal/10"
+                          onClick={() => window.location.href = `/planner?destination=${encodeURIComponent(destination.name)}`}
+                        >
+                          Plan Trip
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 ))}

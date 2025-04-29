@@ -23,8 +23,16 @@ const HeroSection: React.FC = () => {
     setIsSearching(true);
     
     try {
-      await generateDestinationIdeas(searchQuery);
-      navigate(`/explore?query=${encodeURIComponent(searchQuery)}`);
+      console.log("Generating destination ideas for:", searchQuery);
+      const ideas = await generateDestinationIdeas(searchQuery);
+      console.log("Generated ideas:", ideas);
+      
+      if (ideas) {
+        toast.success("Search completed successfully!");
+        navigate(`/explore?query=${encodeURIComponent(searchQuery)}`);
+      } else {
+        toast.error("Failed to process search. Please try again.");
+      }
     } catch (error) {
       console.error("Search error:", error);
       toast.error("Sorry, we couldn't process your search. Please try again.");
@@ -34,7 +42,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="hero-section min-h-screen flex items-center">
+    <section className="hero-section min-h-screen flex items-center bg-gradient-to-b from-travel-navy/80 to-travel-navy/60">
       <div className="container mx-auto px-6 py-24 md:py-32 lg:py-40">
         <div className="max-w-3xl mx-auto text-center">
           <div className="animate-fade-in">

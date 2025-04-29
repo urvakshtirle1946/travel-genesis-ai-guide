@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; 
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Stepper } from '@/components/ui/stepper';
@@ -8,15 +9,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon, Loader } from 'lucide-react';
+import { CalendarIcon, Loader, MapPin, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 
 type TripData = {
+  destination: string;
   startDate: Date | undefined;
   endDate: Date | undefined;
   budgetType: 'fixed' | 'flexible';
@@ -44,32 +47,103 @@ const interests = [
   { id: 'nightlife', label: 'Nightlife' },
 ];
 
+// Sample destinations for autocomplete
+const popularDestinations = [
+  'Bali, Indonesia',
+  'Paris, France',
+  'Tokyo, Japan',
+  'New York, USA',
+  'Rome, Italy',
+  'Santorini, Greece',
+  'Bangkok, Thailand',
+  'London, UK',
+  'Sydney, Australia',
+  'Dubai, UAE'
+];
+
 const Planner = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [tripData, setTripData] = useState<TripData>({
+    destination: '',
     startDate: undefined,
     endDate: undefined,
     budgetType: 'fixed',
     interests: [],
   });
   const [itinerary, setItinerary] = useState<ItineraryDay[]>([]);
+  const [filteredDestinations, setFilteredDestinations] = useState<string[]>([]);
+  const [showDestinations, setShowDestinations] = useState(false);
+
+  // Check for query parameters when the component mounts
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const queryDestination = params.get('destination');
+    
+    if (queryDestination) {
+      setTripData(prev => ({
+        ...prev,
+        destination: decodeURIComponent(queryDestination)
+      }));
+    }
+  }, [location]);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please sign in to create a trip plan");
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  const handleDestinationChange = (value: string) => {
+    setTripData({
+      ...tripData,
+      destination: value
+    });
+
+    if (value.length > 1) {
+      const filtered = popularDestinations.filter(dest => 
+        dest.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredDestinations(filtered);
+      setShowDestinations(true);
+    } else {
+      setShowDestinations(false);
+    }
+  };
+
+  const selectDestination = (destination: string) => {
+    setTripData({
+      ...tripData,
+      destination
+    });
+    setShowDestinations(false);
+  };
 
   const nextStep = () => {
-    if (step === 1 && (!tripData.startDate || !tripData.endDate)) {
+    if (step === 1 && !tripData.destination.trim()) {
+      toast.error("Please enter a destination");
+      return;
+    }
+    
+    if (step === 2 && (!tripData.startDate || !tripData.endDate)) {
       toast.error("Please select both start and end dates");
       return;
     }
     
-    if (step === 3 && tripData.interests.length === 0) {
+    if (step === 4 && tripData.interests.length === 0) {
       toast.error("Please select at least one interest");
       return;
     }
 
-    if (step < 4) {
+    if (step < 5) {
       setStep(step + 1);
-    } else if (step === 4) {
+    } else if (step === 5) {
       generateItinerary();
     }
   };
@@ -107,14 +181,14 @@ const Planner = () => {
       return;
     }
 
+    if (!tripData.destination) {
+      toast.error("Please select a destination");
+      return;
+    }
+
     setLoading(true);
     try {
       // In a real app, we'd make an API call here
-      // await fetch('/api/generateItinerary', {
-      //   method: 'POST',
-      //   body: JSON.stringify(tripData),
-      // });
-      
       // For demo, let's create a mock itinerary after a delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
@@ -122,53 +196,107 @@ const Planner = () => {
         ? Math.ceil((tripData.endDate.getTime() - tripData.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
         : 3;
       
-      const mockItinerary: ItineraryDay[] = Array.from({ length: dayCount }, (_, i) => ({
-        day: i + 1,
-        activities: [
-          {
-            time: '09:00 AM',
-            title: tripData.interests.includes('nature') 
-              ? 'Hiking at National Park' 
-              : 'City Tour',
-            description: 'Explore the beautiful surroundings',
-            type: tripData.interests.includes('nature') ? 'Nature' : 'Culture'
-          },
-          {
-            time: '12:30 PM',
-            title: tripData.interests.includes('food') 
-              ? 'Local Food Tasting' 
-              : 'Lunch at Restaurant',
-            description: 'Enjoy delicious local cuisine',
-            type: 'Food'
-          },
-          {
-            time: '03:00 PM',
-            title: tripData.interests.includes('culture') 
-              ? 'Museum Visit'
-              : tripData.interests.includes('adventure')
-                ? 'Water Sports'
-                : 'Shopping',
-            description: 'Immerse yourself in the local experience',
-            type: tripData.interests.includes('culture') 
-              ? 'Culture' 
-              : tripData.interests.includes('adventure')
-                ? 'Adventure'
-                : 'Shopping'
-          },
-          {
-            time: '07:00 PM',
-            title: tripData.interests.includes('nightlife') 
-              ? 'Nightlife Tour'
-              : 'Dinner and Relaxation',
-            description: 'Unwind after a day of exploration',
-            type: tripData.interests.includes('nightlife') ? 'Nightlife' : 'Relaxation'
-          }
-        ]
-      }));
+      // Generate activities based on destination and user interests
+      const mockItinerary: ItineraryDay[] = Array.from({ length: dayCount }, (_, i) => {
+        // Customize activities based on the destination
+        let activities = [];
+        const destination = tripData.destination.toLowerCase();
+        
+        if (destination.includes('bali')) {
+          activities = [
+            {
+              time: '09:00 AM',
+              title: i === 0 ? 'Sacred Monkey Forest Sanctuary' : i === 1 ? 'Tegallalang Rice Terraces' : 'Uluwatu Temple',
+              description: 'Explore the beautiful natural and cultural sites of Bali',
+              type: tripData.interests.includes('culture') ? 'Culture' : 'Nature'
+            },
+            {
+              time: '12:30 PM',
+              title: 'Traditional Balinese Lunch',
+              description: 'Enjoy authentic local cuisine at a popular restaurant',
+              type: 'Food'
+            },
+            {
+              time: '03:00 PM',
+              title: i === 0 ? 'Ubud Art Market' : i === 1 ? 'Bali Swing' : 'Kuta Beach Sunset',
+              description: 'Experience the unique attractions of the island',
+              type: i === 1 ? 'Adventure' : 'Culture'
+            }
+          ];
+        } else if (destination.includes('paris')) {
+          activities = [
+            {
+              time: '09:00 AM',
+              title: i === 0 ? 'Eiffel Tower' : i === 1 ? 'Louvre Museum' : 'Notre-Dame Cathedral',
+              description: 'Visit the iconic landmarks of Paris',
+              type: 'Culture'
+            },
+            {
+              time: '01:00 PM',
+              title: 'French Cuisine Experience',
+              description: 'Taste authentic French dishes at a local bistro',
+              type: 'Food'
+            },
+            {
+              time: '04:00 PM',
+              title: i === 0 ? 'Champs-Élysées Shopping' : i === 1 ? 'Seine River Cruise' : 'Montmartre Walk',
+              description: 'Enjoy the Parisian atmosphere',
+              type: i === 1 ? 'Relaxation' : 'Culture'
+            }
+          ];
+        } else {
+          // Generic activities for any other destination
+          activities = [
+            {
+              time: '09:00 AM',
+              title: tripData.interests.includes('nature') 
+                ? `${tripData.destination} Nature Exploration` 
+                : `${tripData.destination} City Tour`,
+              description: 'Explore the beautiful surroundings',
+              type: tripData.interests.includes('nature') ? 'Nature' : 'Culture'
+            },
+            {
+              time: '12:30 PM',
+              title: tripData.interests.includes('food') 
+                ? 'Local Food Tasting' 
+                : 'Lunch at Restaurant',
+              description: 'Enjoy delicious local cuisine',
+              type: 'Food'
+            },
+            {
+              time: '03:00 PM',
+              title: tripData.interests.includes('culture') 
+                ? 'Museum Visit'
+                : tripData.interests.includes('adventure')
+                  ? 'Adventure Activity'
+                  : 'Shopping',
+              description: 'Immerse yourself in the local experience',
+              type: tripData.interests.includes('culture') 
+                ? 'Culture' 
+                : tripData.interests.includes('adventure')
+                  ? 'Adventure'
+                  : 'Shopping'
+            },
+            {
+              time: '07:00 PM',
+              title: tripData.interests.includes('nightlife') 
+                ? 'Nightlife Tour'
+                : 'Dinner and Relaxation',
+              description: 'Unwind after a day of exploration',
+              type: tripData.interests.includes('nightlife') ? 'Nightlife' : 'Relaxation'
+            }
+          ];
+        }
+        
+        return {
+          day: i + 1,
+          activities
+        };
+      });
       
       setItinerary(mockItinerary);
-      setStep(5); // Move to results
-      toast.success("Your itinerary has been generated!");
+      setStep(6); // Move to results
+      toast.success("Your itinerary for " + tripData.destination + " has been generated!");
     } catch (error) {
       toast.error("Failed to generate itinerary. Please try again.");
       console.error("Error generating itinerary:", error);
@@ -189,6 +317,39 @@ const Planner = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-travel-navy">Where would you like to go?</h2>
+            
+            <div className="relative">
+              <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                <MapPin className="ml-3 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Enter a destination (e.g. Bali, Paris, Tokyo...)"
+                  value={tripData.destination}
+                  onChange={(e) => handleDestinationChange(e.target.value)}
+                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              
+              {showDestinations && filteredDestinations.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border max-h-60 overflow-auto">
+                  {filteredDestinations.map((dest, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => selectDestination(dest)}
+                    >
+                      {dest}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        
+      case 2:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-travel-navy">Select Your Travel Dates</h2>
@@ -254,7 +415,7 @@ const Planner = () => {
           </div>
         );
         
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-travel-navy">Choose Your Budget Type</h2>
@@ -283,7 +444,7 @@ const Planner = () => {
           </div>
         );
         
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-travel-navy">Select Your Travel Interests</h2>
@@ -308,13 +469,17 @@ const Planner = () => {
           </div>
         );
         
-      case 4:
+      case 5:
         return (
           <div className="space-y-6 text-center">
             <h2 className="text-2xl font-semibold text-travel-navy">Ready to Create Your Trip?</h2>
             <p className="text-gray-600 mb-4">We'll craft a personalized itinerary based on your selections:</p>
             
             <div className="bg-gray-50 p-4 rounded-md text-left space-y-3">
+              <div className="flex justify-between border-b pb-2">
+                <span className="font-medium">Destination:</span>
+                <span>{tripData.destination || "Not specified"}</span>
+              </div>
               <div className="flex justify-between border-b pb-2">
                 <span className="font-medium">Travel Dates:</span>
                 <span>
@@ -343,11 +508,18 @@ const Planner = () => {
           </div>
         );
         
-      case 5:
+      case 6:
         return (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-travel-navy">Your Custom Itinerary</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-travel-navy">Your {tripData.destination} Itinerary</h2>
+                {tripData.startDate && tripData.endDate && (
+                  <p className="text-gray-500">
+                    {format(tripData.startDate, "MMM d")} - {format(tripData.endDate, "MMM d, yyyy")}
+                  </p>
+                )}
+              </div>
               <Button onClick={saveTrip} className="bg-travel-teal hover:bg-travel-teal/90">
                 Save Trip
               </Button>
@@ -403,9 +575,9 @@ const Planner = () => {
             Plan Your Perfect Trip
           </h1>
           
-          {step < 5 && (
+          {step < 6 && (
             <div className="mb-10">
-              <Stepper steps={4} currentStep={step} className="mb-8" />
+              <Stepper steps={5} currentStep={step} className="mb-8" />
             </div>
           )}
           
@@ -417,7 +589,7 @@ const Planner = () => {
                 className="inline-flex flex-col items-center"
               >
                 <Loader className="h-16 w-16 text-travel-teal animate-spin mb-4" />
-                <h3 className="text-xl font-medium text-travel-navy">Crafting your journey...</h3>
+                <h3 className="text-xl font-medium text-travel-navy">Creating your {tripData.destination} itinerary...</h3>
                 <p className="text-gray-500 mt-2">This might take a moment</p>
               </motion.div>
             </div>
@@ -427,7 +599,7 @@ const Planner = () => {
                 {renderStep()}
               </div>
               
-              {step < 5 && (
+              {step < 6 && (
                 <div className="flex justify-between mt-6">
                   {step > 1 ? (
                     <Button variant="outline" onClick={prevStep}>
@@ -440,7 +612,7 @@ const Planner = () => {
                     onClick={nextStep} 
                     className="bg-travel-blue hover:bg-travel-blue/90"
                   >
-                    {step === 4 ? 'Generate Itinerary' : 'Next'}
+                    {step === 5 ? 'Generate Itinerary' : 'Next'}
                   </Button>
                 </div>
               )}

@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, MapPin, BadgeDollarSign, Zap } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from "sonner";
 
 const features = [
   {
@@ -28,11 +30,29 @@ const features = [
   }
 ];
 
+// Sample destinations for the quick plan buttons
+const quickPlanDestinations = [
+  "Bali, Indonesia",
+  "Paris, France",
+  "Tokyo, Japan",
+  "New York, USA"
+];
+
 const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleCreateItinerary = () => {
-    navigate('/planner');
+  const handleCreateItinerary = (destination?: string) => {
+    if (!user) {
+      toast.error("Please sign in to create an itinerary");
+      return;
+    }
+    
+    if (destination) {
+      navigate(`/planner?destination=${encodeURIComponent(destination)}`);
+    } else {
+      navigate('/planner');
+    }
   };
 
   return (
@@ -58,13 +78,31 @@ const TripPlanner: React.FC = () => {
               ))}
             </div>
             
-            <Button 
-              onClick={handleCreateItinerary}
-              className="bg-travel-blue hover:bg-travel-blue/90 text-white"
-              size="lg"
-            >
-              Create Your Itinerary
-            </Button>
+            <div className="space-y-4">
+              <Button 
+                onClick={() => handleCreateItinerary()}
+                className="bg-travel-blue hover:bg-travel-blue/90 text-white w-full"
+                size="lg"
+              >
+                Create Custom Itinerary
+              </Button>
+              
+              <div>
+                <p className="text-sm text-center text-gray-500 mb-2">Quick plan popular destinations:</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {quickPlanDestinations.map((destination) => (
+                    <Button 
+                      key={destination}
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCreateItinerary(destination)}
+                    >
+                      {destination}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Right side - Image/Illustration */}

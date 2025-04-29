@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
 
   // Determine if we're on a page that needs a contrasted navbar
-  const isExploreOrPlanner = location.pathname === '/explore' || location.pathname === '/planner';
+  const isContrastPage = location.pathname === '/explore' || location.pathname === '/planner';
   
   React.useEffect(() => {
     const handleScroll = () => {
@@ -38,14 +38,14 @@ const Navbar: React.FC = () => {
     <header 
       className={cn(
         "fixed top-0 w-full z-50 transition-all duration-300", 
-        (scrolled || isExploreOrPlanner) ? "bg-white/95 shadow-sm backdrop-blur-md py-3" : "bg-transparent py-5"
+        (scrolled || isContrastPage) ? "bg-white shadow-sm py-3" : "bg-transparent py-5"
       )}
     >
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center">
           <h1 className={cn(
             "font-bold text-2xl",
-            (scrolled || isExploreOrPlanner) ? "text-travel-navy" : "text-white"
+            (scrolled || isContrastPage) ? "text-travel-navy" : "text-white"
           )}>
             Travel<span className="text-travel-teal">Genesis</span>
           </h1>
@@ -54,34 +54,34 @@ const Navbar: React.FC = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/explore" className={cn(
-            "transition-colors hover:text-travel-teal",
-            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+            "transition-colors hover:text-travel-teal font-medium",
+            (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
           )}>
             Explore
           </Link>
           {user && (
             <>
               <Link to="/planner" className={cn(
-                "transition-colors hover:text-travel-teal",
-                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+                "transition-colors hover:text-travel-teal font-medium",
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
               )}>
                 Trip Planner
               </Link>
               <Link to="/booking" className={cn(
-                "transition-colors hover:text-travel-teal", 
-                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+                "transition-colors hover:text-travel-teal font-medium", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
               )}>
                 Bookings
               </Link>
               <Link to="/budget-tracker" className={cn(
-                "transition-colors hover:text-travel-teal", 
-                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+                "transition-colors hover:text-travel-teal font-medium", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
               )}>
                 Budget
               </Link>
               <Link to="/documents" className={cn(
-                "transition-colors hover:text-travel-teal", 
-                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+                "transition-colors hover:text-travel-teal font-medium", 
+                (scrolled || isContrastPage) ? "text-gray-700" : "text-white"
               )}>
                 Documents
               </Link>
@@ -92,13 +92,13 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-4">
           {user && (
             <>
-              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
                 <Map className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+              <Button variant="ghost" size="icon" className={(scrolled || isContrastPage) ? "text-gray-700" : "text-white"}>
                 <MessageSquare className="h-5 w-5" />
               </Button>
             </>
@@ -107,7 +107,7 @@ const Navbar: React.FC = () => {
           {user ? (
             <Button 
               variant="outline" 
-              className={(scrolled || isExploreOrPlanner) ? "bg-white text-travel-navy" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
+              className={(scrolled || isContrastPage) ? "bg-white text-travel-navy border-gray-200" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
               onClick={handleSignOut}
             >
               <LogOut className="h-4 w-4 mr-2" />
@@ -116,7 +116,7 @@ const Navbar: React.FC = () => {
           ) : (
             <Button 
               variant="outline" 
-              className={(scrolled || isExploreOrPlanner) ? "bg-white text-travel-navy" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
+              className={(scrolled || isContrastPage) ? "bg-white text-travel-navy border-gray-200" : "bg-white/20 text-white border-white/30 hover:bg-white/30"}
               onClick={handleSignIn}
             >
               <User className="h-4 w-4 mr-2" />
@@ -132,7 +132,7 @@ const Navbar: React.FC = () => {
           className="md:hidden" 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          <Menu className={(scrolled || isExploreOrPlanner) ? "h-6 w-6 text-gray-700" : "h-6 w-6 text-white"} />
+          <Menu className={(scrolled || isContrastPage) ? "h-6 w-6 text-gray-700" : "h-6 w-6 text-white"} />
         </Button>
       </div>
 
