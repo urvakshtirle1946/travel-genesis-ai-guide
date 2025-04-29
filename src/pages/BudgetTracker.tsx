@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,50 +8,132 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { PieChart as PieChartIcon, BarChart, ArrowDown, ArrowUp } from 'lucide-react';
+import { Hotel, MapPin, ShoppingBag, Utensils, PlaneTakeoff } from 'lucide-react';
 import { BadgeDollarSign, CreditCard, PieChart, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ExpenseForm from '@/components/budget/ExpenseForm';
+import { PieChart as PieChartIcon, BarChart, ArrowDown, ArrowUp } from 'lucide-react';
 
-// Import these icons at the top of the file
-import { Hotel, MapPin, ShoppingBag, Utensils, PlaneTakeoff } from 'lucide-react';
+// Define the category types with their icons
+const expenseCategories = [
+  { id: 1, name: 'Accommodation', icon: <Hotel className="h-4 w-4" /> },
+  { id: 2, name: 'Transportation', icon: <PlaneTakeoff className="h-4 w-4" /> },
+  { id: 3, name: 'Food', icon: <Utensils className="h-4 w-4" /> },
+  { id: 4, name: 'Activities', icon: <MapPin className="h-4 w-4" /> },
+  { id: 5, name: 'Shopping', icon: <ShoppingBag className="h-4 w-4" /> }
+];
 
-// Sample data for demonstration
-const sampleBudgetData = {
-  total: 5000,
-  spent: 2500,
-  categories: [
-    { id: 1, name: 'Accommodation', budget: 2000, spent: 1200, icon: <Hotel className="h-4 w-4" /> },
-    { id: 2, name: 'Transportation', budget: 1000, spent: 800, icon: <PlaneTakeoff className="h-4 w-4" /> },
-    { id: 3, name: 'Food', budget: 1000, spent: 400, icon: <Utensils className="h-4 w-4" /> },
-    { id: 4, name: 'Activities', budget: 800, spent: 100, icon: <MapPin className="h-4 w-4" /> },
-    { id: 5, name: 'Shopping', budget: 200, spent: 0, icon: <ShoppingBag className="h-4 w-4" /> }
-  ],
-  transactions: [
-    { id: 1, date: '2023-05-01', category: 'Accommodation', description: 'Hotel Booking', amount: 800 },
-    { id: 2, date: '2023-05-02', category: 'Transportation', description: 'Flight Tickets', amount: 600 },
-    { id: 3, date: '2023-05-03', category: 'Food', description: 'Grocery Shopping', amount: 50 },
-    { id: 4, date: '2023-05-05', category: 'Activities', description: 'Museum Tour', amount: 30 },
-    { id: 5, date: '2023-05-08', category: 'Accommodation', description: 'Resort Booking', amount: 400 },
-    { id: 6, date: '2023-05-10', category: 'Transportation', description: 'Taxi', amount: 20 },
-    { id: 7, date: '2023-05-12', category: 'Food', description: 'Restaurant', amount: 100 },
-    { id: 8, date: '2023-05-15', category: 'Transportation', description: 'Car Rental', amount: 180 },
-    { id: 9, date: '2023-05-18', category: 'Food', description: 'Cafe', amount: 25 },
-    { id: 10, date: '2023-05-20', category: 'Food', description: 'Dinner at Bistro', amount: 80 }
-  ]
-};
+// Define the budget data type
+interface BudgetCategory {
+  id: number;
+  name: string;
+  budget: number;
+  spent: number;
+  icon: JSX.Element;
+}
+
+interface Transaction {
+  id: number;
+  date: string;
+  category: string;
+  description: string;
+  amount: number;
+}
+
+interface BudgetData {
+  total: number;
+  spent: number;
+  categories: BudgetCategory[];
+  transactions: Transaction[];
+}
 
 const BudgetTracker = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [budgetData, setBudgetData] = useState<BudgetData>({
+    total: 5000,
+    spent: 0,
+    categories: expenseCategories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      budget: cat.id === 1 ? 2000 : cat.id === 2 ? 1000 : cat.id === 3 ? 1000 : cat.id === 4 ? 800 : 200,
+      spent: 0,
+      icon: cat.icon
+    })),
+    transactions: []
+  });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!user) {
       toast.error("Please sign in to access your Budget Tracker");
+      return;
+    }
+
+    // Load budget data from localStorage
+    const savedBudgetData = localStorage.getItem('budgetData');
+    if (savedBudgetData) {
+      setBudgetData(JSON.parse(savedBudgetData));
     }
   }, [user]);
 
-  const totalSpent = sampleBudgetData.spent;
-  const totalBudget = sampleBudgetData.total;
+  // Save budget data to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('budgetData', JSON.stringify(budgetData));
+    }
+  }, [budgetData, user]);
+
+  const handleAddExpense = (expense: any) => {
+    // Find the category
+    const categoryObj = expenseCategories.find(cat => cat.name === expense.category);
+    if (!categoryObj) return;
+
+    // Create a new transaction
+    const newTransaction: Transaction = {
+      id: expense.id,
+      date: expense.date,
+      category: expense.category,
+      description: expense.description,
+      amount: expense.amount
+    };
+
+    // Update the budget data
+    const updatedCategories = budgetData.categories.map(cat => 
+      cat.name === expense.category 
+        ? { ...cat, spent: cat.spent + expense.amount } 
+        : cat
+    );
+
+    const updatedBudgetData: BudgetData = {
+      ...budgetData,
+      spent: budgetData.spent + expense.amount,
+      categories: updatedCategories,
+      transactions: [newTransaction, ...budgetData.transactions].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    };
+
+    setBudgetData(updatedBudgetData);
+  };
+
+  const handleEditBudget = (categoryId: number, newBudget: number) => {
+    const updatedCategories = budgetData.categories.map(cat => 
+      cat.id === categoryId ? { ...cat, budget: newBudget } : cat
+    );
+
+    const newTotal = updatedCategories.reduce((sum, cat) => sum + cat.budget, 0);
+
+    setBudgetData({
+      ...budgetData,
+      total: newTotal,
+      categories: updatedCategories
+    });
+
+    toast.success("Budget updated successfully");
+  };
+
+  const totalSpent = budgetData.spent;
+  const totalBudget = budgetData.total;
   const remainingBudget = totalBudget - totalSpent;
 
   return (
@@ -71,24 +154,16 @@ const BudgetTracker = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              <Card className="border-dashed border-2">
-                <CardContent className="p-6">
-                  <div className="text-center space-y-4">
-                    <div className="mx-auto bg-gray-100 rounded-full p-4 w-fit">
-                      <BadgeDollarSign className="h-8 w-8 text-travel-blue" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">Track Your Expenses</h3>
-                      <p className="text-gray-500">Visualize and manage your travel budget effectively</p>
-                    </div>
-                    <Button
-                      onClick={() => toast.info("Expense tracking functionality will be available soon!")}
-                      className="bg-travel-blue hover:bg-travel-blue/90"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Add Expense
-                    </Button>
-                  </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add New Expense</CardTitle>
+                  <CardDescription>Track your spending by adding expenses as they occur</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ExpenseForm 
+                    onAddExpense={handleAddExpense}
+                    categories={expenseCategories}
+                  />
                 </CardContent>
               </Card>
 
@@ -101,17 +176,22 @@ const BudgetTracker = () => {
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span>Total Budget:</span>
-                      <span className="font-medium">${totalBudget}</span>
+                      <span className="font-medium">${totalBudget.toFixed(2)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Total Spent:</span>
-                      <span className="font-medium">${totalSpent}</span>
+                      <span className="font-medium">${totalSpent.toFixed(2)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Remaining Budget:</span>
-                      <span className="font-medium">${remainingBudget}</span>
+                      <span className={`font-medium ${remainingBudget < 0 ? 'text-red-500' : ''}`}>
+                        ${remainingBudget.toFixed(2)}
+                      </span>
                     </div>
-                    <Progress value={(totalSpent / totalBudget) * 100} />
+                    <Progress 
+                      value={(totalSpent / totalBudget) * 100} 
+                      className={remainingBudget < 0 ? 'bg-red-100' : ''}
+                    />
                   </CardContent>
                   <CardFooter className="text-sm text-gray-500">
                     Updated as of today
@@ -128,13 +208,19 @@ const BudgetTracker = () => {
                       <PieChart className="h-48 w-48" />
                     </div>
                     <ul className="space-y-2 mt-4">
-                      {sampleBudgetData.categories.map(category => (
+                      {budgetData.categories.map(category => (
                         <li key={category.id} className="flex items-center justify-between">
                           <div className="flex items-center">
                             {category.icon}
                             <span className="ml-2">{category.name}</span>
                           </div>
-                          <span>${category.spent}</span>
+                          <div className="text-right">
+                            <div>${category.spent.toFixed(2)} <span className="text-gray-400">/ ${category.budget.toFixed(2)}</span></div>
+                            <Progress 
+                              value={(category.spent / category.budget) * 100} 
+                              className={`h-1 w-24 ${category.spent > category.budget ? 'bg-red-100' : ''}`}
+                            />
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -149,36 +235,47 @@ const BudgetTracker = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead>
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Description
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Amount
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {sampleBudgetData.transactions.map(transaction => (
-                          <tr key={transaction.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">{transaction.date}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{transaction.category}</td>
-                            <td className="px-6 py-4">{transaction.description}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                              ${transaction.amount}
-                            </td>
+                    {budgetData.transactions.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No transactions yet. Add your first expense!</p>
+                      </div>
+                    ) : (
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Category
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Description
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Amount
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {budgetData.transactions.map(transaction => (
+                            <tr key={transaction.id}>
+                              <td className="px-6 py-4 whitespace-nowrap">{transaction.date}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  {expenseCategories.find(cat => cat.name === transaction.category)?.icon}
+                                  <span className="ml-2">{transaction.category}</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">{transaction.description}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right">
+                                ${transaction.amount.toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 </CardContent>
               </Card>

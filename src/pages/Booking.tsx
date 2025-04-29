@@ -1,17 +1,20 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarRange, Hotel, Plane } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Hotel, Plane, CalendarRange } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BookingForm from '@/components/booking/BookingForm';
 
 const Booking = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('flight');
 
   React.useEffect(() => {
     if (!user) {
@@ -21,29 +24,24 @@ const Booking = () => {
 
   const bookingOptions = [
     {
+      id: 'flight',
       title: 'Flight Booking',
       description: 'Search and book flights to your destination',
       icon: <Plane className="h-8 w-8 text-travel-blue" />,
     },
     {
+      id: 'hotel',
       title: 'Hotel Booking',
       description: 'Find hotels, apartments, and other accommodations',
       icon: <Hotel className="h-8 w-8 text-travel-teal" />,
     },
     {
+      id: 'activity',
       title: 'Activity Booking',
       description: 'Discover and book tours, attractions, and activities',
       icon: <CalendarRange className="h-8 w-8 text-travel-navy" />,
     }
   ];
-
-  const handleBookNow = (bookingType: string) => {
-    if (!user) {
-      toast.error("Please sign in to book a " + bookingType.toLowerCase());
-      return;
-    }
-    toast.info(`${bookingType} feature coming soon!`);
-  };
 
   const handlePlanTrip = () => {
     navigate('/planner');
@@ -71,25 +69,22 @@ const Booking = () => {
                 <h2 className="text-2xl font-semibold text-travel-navy mb-4">Book Your Travel Services</h2>
                 <p className="text-gray-600 mb-6">Find and book the best flights, hotels, and activities for your trip.</p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {bookingOptions.map((option, index) => (
-                    <Card key={index} className="hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-2">
-                        <div className="mb-2">{option.icon}</div>
-                        <CardTitle>{option.title}</CardTitle>
-                        <CardDescription>{option.description}</CardDescription>
-                      </CardHeader>
-                      <CardFooter className="pt-2">
-                        <Button 
-                          className="w-full bg-travel-blue hover:bg-travel-blue/90"
-                          onClick={() => handleBookNow(option.title)}
-                        >
-                          Book Now
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                <Tabs defaultValue="flight" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="w-full mb-6 grid grid-cols-3">
+                    {bookingOptions.map(option => (
+                      <TabsTrigger key={option.id} value={option.id} className="flex flex-col md:flex-row items-center gap-2">
+                        {option.icon}
+                        <span className="hidden md:inline">{option.title}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  
+                  {bookingOptions.map(option => (
+                    <TabsContent key={option.id} value={option.id}>
+                      <BookingForm bookingType={option.title} />
+                    </TabsContent>
                   ))}
-                </div>
+                </Tabs>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm">
