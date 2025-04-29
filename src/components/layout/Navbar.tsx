@@ -59,42 +59,50 @@ const Navbar: React.FC = () => {
           )}>
             Explore
           </Link>
-          <Link to="/planner" className={cn(
-            "transition-colors hover:text-travel-teal",
-            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
-          )}>
-            Trip Planner
-          </Link>
-          <Link to="/booking" className={cn(
-            "transition-colors hover:text-travel-teal", 
-            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
-          )}>
-            Bookings
-          </Link>
-          <Link to="/budget-tracker" className={cn(
-            "transition-colors hover:text-travel-teal", 
-            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
-          )}>
-            Budget
-          </Link>
-          <Link to="/documents" className={cn(
-            "transition-colors hover:text-travel-teal", 
-            (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
-          )}>
-            Documents
-          </Link>
+          {user && (
+            <>
+              <Link to="/planner" className={cn(
+                "transition-colors hover:text-travel-teal",
+                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+              )}>
+                Trip Planner
+              </Link>
+              <Link to="/booking" className={cn(
+                "transition-colors hover:text-travel-teal", 
+                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+              )}>
+                Bookings
+              </Link>
+              <Link to="/budget-tracker" className={cn(
+                "transition-colors hover:text-travel-teal", 
+                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+              )}>
+                Budget
+              </Link>
+              <Link to="/documents" className={cn(
+                "transition-colors hover:text-travel-teal", 
+                (scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"
+              )}>
+                Documents
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
-            <Map className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
-            <MessageSquare className="h-5 w-5" />
-          </Button>
+          {user && (
+            <>
+              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+                <Search className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+                <Map className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className={(scrolled || isExploreOrPlanner) ? "text-gray-700" : "text-white"}>
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            </>
+          )}
           
           {user ? (
             <Button 
@@ -135,21 +143,25 @@ const Navbar: React.FC = () => {
             <Link to="/explore" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
               Explore
             </Link>
-            <Link to="/planner" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
-              Trip Planner
-            </Link>
-            <Link to="/booking" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
-              Bookings
-            </Link>
-            <Link to="/budget-tracker" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
-              Budget Tracker
-            </Link>
-            <Link to="/documents" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
-              Documents
-            </Link>
-            <Link to="/group-expenses" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
-              Group Expenses
-            </Link>
+            {user && (
+              <>
+                <Link to="/planner" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  Trip Planner
+                </Link>
+                <Link to="/booking" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  Bookings
+                </Link>
+                <Link to="/budget-tracker" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  Budget Tracker
+                </Link>
+                <Link to="/documents" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  Documents
+                </Link>
+                <Link to="/group-expenses" className="text-gray-700 hover:text-travel-teal" onClick={() => setMobileMenuOpen(false)}>
+                  Group Expenses
+                </Link>
+              </>
+            )}
             
             <div className="pt-2 flex space-x-4">
               {user ? (

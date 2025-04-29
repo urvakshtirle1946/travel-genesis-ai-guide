@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -27,14 +28,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('signin');
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, loading, user } = useAuth();
+
+  // Close the modal when the user successfully signs in
+  useEffect(() => {
+    if (user && isOpen) {
+      onClose();
+      toast.success(`Welcome back!`);
+    }
+  }, [user, isOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (activeTab === 'signin') {
       await signIn(email, password);
-      onClose();
     } else {
       await signUp(email, password);
       // Don't close modal after signup as they might need to check email
