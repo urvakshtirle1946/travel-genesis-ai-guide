@@ -13,13 +13,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BadgeDollarSign, CreditCard, PieChart, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Import these icons at the top of the file
+import { Hotel, MapPin, ShoppingBag, Utensils, PlaneTakeoff } from 'lucide-react';
+
 // Sample data for demonstration
 const sampleBudgetData = {
   total: 5000,
   spent: 2500,
   categories: [
     { id: 1, name: 'Accommodation', budget: 2000, spent: 1200, icon: <Hotel className="h-4 w-4" /> },
-    { id: 2, name: 'Transportation', budget: 1000, spent: 800, icon: <Plane className="h-4 w-4" /> },
+    { id: 2, name: 'Transportation', budget: 1000, spent: 800, icon: <PlaneTakeoff className="h-4 w-4" /> },
     { id: 3, name: 'Food', budget: 1000, spent: 400, icon: <Utensils className="h-4 w-4" /> },
     { id: 4, name: 'Activities', budget: 800, spent: 100, icon: <MapPin className="h-4 w-4" /> },
     { id: 5, name: 'Shopping', budget: 200, spent: 0, icon: <ShoppingBag className="h-4 w-4" /> }
@@ -37,9 +40,6 @@ const sampleBudgetData = {
     { id: 10, date: '2023-05-20', category: 'Food', description: 'Dinner at Bistro', amount: 80 }
   ]
 };
-
-// Import these icons at the top of the file
-import { Hotel, MapPin, ShoppingBag, Utensils } from 'lucide-react';
 
 const BudgetTracker = () => {
   const { user } = useAuth();

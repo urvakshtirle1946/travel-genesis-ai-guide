@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -7,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileIcon, FileText, Passport, Upload, FileCheck, FilePlus } from 'lucide-react';
+import { FileIcon, FileText, IdCard, Upload, FileCheck, FilePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Documents = () => {
@@ -28,7 +27,7 @@ const Documents = () => {
       type: 'Identification',
       date: '2023-03-15',
       expires: '2028-03-14',
-      icon: <Passport className="h-8 w-8 text-travel-navy" />
+      icon: <IdCard className="h-8 w-8 text-travel-navy" />
     },
     {
       id: 2,
@@ -52,7 +51,7 @@ const Documents = () => {
       id: 'identification',
       name: 'Identification Documents',
       description: 'Passport, ID card, Driver\'s license',
-      icon: <Passport className="h-6 w-6" />
+      icon: <IdCard className="h-6 w-6" />
     },
     {
       id: 'insurance',
