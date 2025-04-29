@@ -3,7 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin, BadgeDollarSign, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CalendarDays, MapPin, BadgeDollarSign, Zap, Navigation } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 
@@ -38,9 +39,20 @@ const quickPlanDestinations = [
   "New York, USA"
 ];
 
+// Sample origin cities for the "from" field
+const originCities = [
+  "London, UK",
+  "Sydney, Australia",
+  "Toronto, Canada",
+  "Dubai, UAE",
+  "Singapore"
+];
+
 const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [origin, setOrigin] = React.useState('');
+  const [destination, setDestination] = React.useState('');
 
   const handleCreateItinerary = (destination?: string) => {
     if (!user) {
@@ -50,6 +62,8 @@ const TripPlanner: React.FC = () => {
     
     if (destination) {
       navigate(`/planner?destination=${encodeURIComponent(destination)}`);
+    } else if (origin && destination) {
+      navigate(`/planner?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
     } else {
       navigate('/planner');
     }
@@ -88,6 +102,28 @@ const TripPlanner: React.FC = () => {
             </div>
             
             <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                  <Navigation className="ml-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    placeholder="From (e.g. London, New York)"
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                
+                <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                  <MapPin className="ml-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    placeholder="To (e.g. Paris, Tokyo)"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+              </div>
+              
               <Button 
                 onClick={() => handleCreateItinerary()}
                 className="bg-travel-blue hover:bg-travel-blue/90 text-white w-full"
@@ -107,14 +143,14 @@ const TripPlanner: React.FC = () => {
               <div>
                 <p className="text-sm text-center text-gray-500 mb-2">Quick plan popular destinations:</p>
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {quickPlanDestinations.map((destination) => (
+                  {quickPlanDestinations.map((dest) => (
                     <Button 
-                      key={destination}
+                      key={dest}
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleCreateItinerary(destination)}
+                      onClick={() => handleCreateItinerary(dest)}
                     >
-                      {destination}
+                      {dest}
                     </Button>
                   ))}
                 </div>
