@@ -13,19 +13,24 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon, Loader, MapPin, Search, BadgeDollarSign } from 'lucide-react';
+import { CalendarIcon, Loader, MapPin, Search, BadgeDollarSign, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import TransportationOptions, { TransportOption } from '@/components/planner/TransportationOptions';
+import ShoppingRecommendations from '@/components/planner/ShoppingRecommendations';
+import HotelRecommendations from '@/components/planner/HotelRecommendations';
 
 type TripData = {
+  origin: string;
   destination: string;
   startDate: Date | undefined;
   endDate: Date | undefined;
   budgetType: 'fixed' | 'flexible';
   budget: number;
   interests: string[];
+  selectedTransportation?: TransportOption;
 };
 
 type ItineraryDay = {
@@ -64,6 +69,20 @@ const popularDestinations = [
   'Dubai, UAE'
 ];
 
+// Sample origins for autocomplete
+const popularOrigins = [
+  'London, UK',
+  'New York, USA',
+  'Sydney, Australia',
+  'Toronto, Canada',
+  'Dubai, UAE',
+  'Singapore',
+  'Berlin, Germany',
+  'San Francisco, USA',
+  'Mumbai, India',
+  'Shanghai, China'
+];
+
 // Budget ranges by destination (approximate daily costs in USD)
 const destinationBudgetRanges: Record<string, { min: number; max: number; average: number }> = {
   'Bali': { min: 30, max: 200, average: 70 },
@@ -86,6 +105,7 @@ const Planner = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [tripData, setTripData] = useState<TripData>({
+    origin: '',
     destination: '',
     startDate: undefined,
     endDate: undefined,
@@ -95,14 +115,18 @@ const Planner = () => {
   });
   const [itinerary, setItinerary] = useState<ItineraryDay[]>([]);
   const [filteredDestinations, setFilteredDestinations] = useState<string[]>([]);
+  const [filteredOrigins, setFilteredOrigins] = useState<string[]>([]);
   const [showDestinations, setShowDestinations] = useState(false);
+  const [showOrigins, setShowOrigins] = useState(false);
   const [suggestedBudget, setSuggestedBudget] = useState({ min: 50, max: 300, average: 100 });
   const [totalTripCost, setTotalTripCost] = useState(0);
+  const [showAdditionalOptions, setShowAdditionalOptions] = useState(false);
 
   // Check for query parameters when the component mounts
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const queryDestination = params.get('destination');
+    const queryOrigin = params.get('origin');
     
     if (queryDestination) {
       setTripData(prev => ({
@@ -112,6 +136,13 @@ const Planner = () => {
 
       // Update the suggested budget based on destination
       updateSuggestedBudget(decodeURIComponent(queryDestination));
+    }
+
+    if (queryOrigin) {
+      setTripData(prev => ({
+        ...prev,
+        origin: decodeURIComponent(queryOrigin)
+      }));
     }
   }, [location]);
 
@@ -137,6 +168,23 @@ const Planner = () => {
     }
   };
 
+  const handleOriginChange = (value: string) => {
+    setTripData({
+      ...tripData,
+      origin: value
+    });
+
+    if (value.length > 1) {
+      const filtered = popularOrigins.filter(orig => 
+        orig.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredOrigins(filtered);
+      setShowOrigins(true);
+    } else {
+      setShowOrigins(false);
+    }
+  };
+
   const handleDestinationChange = (value: string) => {
     setTripData({
       ...tripData,
@@ -157,6 +205,14 @@ const Planner = () => {
     }
   };
 
+  const selectOrigin = (origin: string) => {
+    setTripData({
+      ...tripData,
+      origin
+    });
+    setShowOrigins(false);
+  };
+
   const selectDestination = (destination: string) => {
     setTripData({
       ...tripData,
@@ -169,8 +225,8 @@ const Planner = () => {
   };
 
   const nextStep = () => {
-    if (step === 1 && !tripData.destination.trim()) {
-      toast.error("Please enter a destination");
+    if (step === 1 && (!tripData.origin.trim() || !tripData.destination.trim())) {
+      toast.error("Please enter both origin and destination");
       return;
     }
     
@@ -225,6 +281,14 @@ const Planner = () => {
     }
   };
 
+  const handleSelectTransportation = (option: TransportOption) => {
+    setTripData({
+      ...tripData,
+      selectedTransportation: option
+    });
+    toast.success(`Selected ${option.type} transportation option`);
+  };
+
   const generateItinerary = async () => {
     if (!user) {
       toast.error("Please sign in to generate an itinerary");
@@ -233,6 +297,11 @@ const Planner = () => {
 
     if (!tripData.destination) {
       toast.error("Please select a destination");
+      return;
+    }
+
+    if (!tripData.origin) {
+      toast.error("Please select an origin");
       return;
     }
 
@@ -459,6 +528,7 @@ const Planner = () => {
       
       setItinerary(mockItinerary);
       setStep(6); // Move to results
+      setShowAdditionalOptions(true); // Show additional recommendations
       toast.success("Your itinerary for " + tripData.destination + " has been generated!");
     } catch (error) {
       toast.error("Failed to generate itinerary. Please try again.");
@@ -482,32 +552,64 @@ const Planner = () => {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-travel-navy">Where would you like to go?</h2>
+            <h2 className="text-2xl font-semibold text-travel-navy">Where are you traveling?</h2>
             
-            <div className="relative">
-              <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-                <MapPin className="ml-3 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="Enter a destination (e.g. Bali, Paris, Tokyo...)"
-                  value={tripData.destination}
-                  onChange={(e) => handleDestinationChange(e.target.value)}
-                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-              
-              {showDestinations && filteredDestinations.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border max-h-60 overflow-auto">
-                  {filteredDestinations.map((dest, index) => (
-                    <div
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => selectDestination(dest)}
-                    >
-                      {dest}
-                    </div>
-                  ))}
+            <div className="space-y-4">
+              <div className="relative">
+                <Label htmlFor="origin">Starting Location</Label>
+                <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                  <Navigation className="ml-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="origin"
+                    placeholder="Where are you starting from? (e.g. London, Sydney)"
+                    value={tripData.origin}
+                    onChange={(e) => handleOriginChange(e.target.value)}
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
                 </div>
-              )}
+                
+                {showOrigins && filteredOrigins.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border max-h-60 overflow-auto">
+                    {filteredOrigins.map((origin, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => selectOrigin(origin)}
+                      >
+                        {origin}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <Label htmlFor="destination">Destination</Label>
+                <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                  <MapPin className="ml-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="destination"
+                    placeholder="Where are you going? (e.g. Paris, Tokyo)"
+                    value={tripData.destination}
+                    onChange={(e) => handleDestinationChange(e.target.value)}
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                
+                {showDestinations && filteredDestinations.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border max-h-60 overflow-auto">
+                    {filteredDestinations.map((dest, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => selectDestination(dest)}
+                      >
+                        {dest}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -680,44 +782,21 @@ const Planner = () => {
         
       case 5:
         return (
-          <div className="space-y-6 text-center">
-            <h2 className="text-2xl font-semibold text-travel-navy">Ready to Create Your Trip?</h2>
-            <p className="text-gray-600 mb-4">We'll craft a personalized itinerary based on your selections:</p>
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-travel-navy">Choose Transportation</h2>
+            <p className="text-gray-600 mb-4">Select how you want to travel from {tripData.origin.split(',')[0]} to {tripData.destination.split(',')[0]}</p>
             
-            <div className="bg-gray-50 p-4 rounded-md text-left space-y-3">
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Destination:</span>
-                <span>{tripData.destination || "Not specified"}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Travel Dates:</span>
-                <span>
-                  {tripData.startDate && tripData.endDate
-                    ? `${format(tripData.startDate, "MMM d")} - ${format(tripData.endDate, "MMM d, yyyy")}`
-                    : "Not specified"}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Budget Type:</span>
-                <span className="capitalize">{tripData.budgetType}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="font-medium">Daily Budget:</span>
-                <span>${tripData.budget}/day</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Interests:</span>
-                <span>
-                  {tripData.interests.length > 0
-                    ? tripData.interests.map(id => 
-                        interests.find(interest => interest.id === id)?.label
-                      ).join(", ")
-                    : "None selected"}
-                </span>
-              </div>
+            <TransportationOptions 
+              origin={tripData.origin} 
+              destination={tripData.destination}
+              onSelectOption={handleSelectTransportation}
+            />
+            
+            <div className="mt-6 pt-4 border-t">
+              <p className="text-center text-gray-500 italic">
+                Select a transportation option above or click "Generate Itinerary" to proceed without selecting
+              </p>
             </div>
-            
-            <p className="text-gray-500 italic">Click "Generate Itinerary" to proceed</p>
           </div>
         );
         
@@ -726,7 +805,9 @@ const Planner = () => {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-semibold text-travel-navy">Your {tripData.destination} Itinerary</h2>
+                <h2 className="text-2xl font-semibold text-travel-navy">
+                  Your Trip: {tripData.origin.split(',')[0]} to {tripData.destination.split(',')[0]}
+                </h2>
                 {tripData.startDate && tripData.endDate && (
                   <p className="text-gray-500">
                     {format(tripData.startDate, "MMM d")} - {format(tripData.endDate, "MMM d, yyyy")}
@@ -772,7 +853,50 @@ const Planner = () => {
               </div>
             </div>
             
+            {/* Transportation details if selected */}
+            {tripData.selectedTransportation && (
+              <div className="bg-white p-4 rounded-lg shadow-sm border mt-4">
+                <h3 className="font-semibold mb-3">Selected Transportation</h3>
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      {tripData.selectedTransportation.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{tripData.selectedTransportation.name}</h4>
+                      <div className="text-sm text-gray-500">
+                        Provider: {tripData.selectedTransportation.provider}
+                        {tripData.selectedTransportation.stops > 0 && <span> • {tripData.selectedTransportation.stops} stop{tripData.selectedTransportation.stops > 1 ? 's' : ''}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-travel-blue">${tripData.selectedTransportation.price}</div>
+                    <div className="text-sm">{tripData.selectedTransportation.duration}</div>
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-between text-sm">
+                  <div>
+                    <div className="font-medium">{tripData.selectedTransportation.departure}</div>
+                    <div className="text-gray-500">{tripData.origin.split(',')[0]}</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center px-4">
+                    <div className="w-full h-[1px] bg-gray-300 relative">
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2 text-xs text-gray-500">
+                        {tripData.selectedTransportation.duration}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium">{tripData.selectedTransportation.arrival}</div>
+                    <div className="text-gray-500">{tripData.destination.split(',')[0]}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-8 mt-6">
+              <h3 className="text-xl font-medium text-travel-navy">Your Itinerary</h3>
               {itinerary.map((day) => (
                 <div key={day.day} className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-100">
                   <div className="bg-travel-blue text-white p-4">
@@ -830,6 +954,20 @@ const Planner = () => {
                 </div>
               ))}
             </div>
+            
+            {showAdditionalOptions && (
+              <div className="mt-8 space-y-8">
+                <h3 className="text-xl font-medium text-travel-navy">Recommended Accommodations</h3>
+                <HotelRecommendations destination={tripData.destination} />
+                
+                {tripData.interests.includes('shopping') && (
+                  <>
+                    <h3 className="text-xl font-medium text-travel-navy">Shopping Recommendations</h3>
+                    <ShoppingRecommendations destination={tripData.destination} />
+                  </>
+                )}
+              </div>
+            )}
           </div>
         );
         
@@ -862,7 +1000,7 @@ const Planner = () => {
                 className="inline-flex flex-col items-center"
               >
                 <Loader className="h-16 w-16 text-travel-teal animate-spin mb-4" />
-                <h3 className="text-xl font-medium text-travel-navy">Creating your {tripData.destination} itinerary...</h3>
+                <h3 className="text-xl font-medium text-travel-navy">Creating your itinerary from {tripData.origin.split(',')[0]} to {tripData.destination.split(',')[0]}...</h3>
                 <p className="text-gray-500 mt-2">This might take a moment</p>
               </motion.div>
             </div>

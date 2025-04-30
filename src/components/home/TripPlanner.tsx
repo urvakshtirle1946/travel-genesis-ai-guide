@@ -53,6 +53,7 @@ const TripPlanner: React.FC = () => {
   const { user } = useAuth();
   const [origin, setOrigin] = React.useState('');
   const [destination, setDestination] = React.useState('');
+  const [showOriginSuggestions, setShowOriginSuggestions] = React.useState(false);
 
   const handleCreateItinerary = (destination?: string) => {
     if (!user) {
@@ -76,6 +77,22 @@ const TripPlanner: React.FC = () => {
     }
     
     navigate('/budget-tracker');
+  };
+
+  const handleOriginFocus = () => {
+    setShowOriginSuggestions(true);
+  };
+
+  const handleOriginBlur = () => {
+    // Delay hiding the suggestions to allow for clicks
+    setTimeout(() => {
+      setShowOriginSuggestions(false);
+    }, 200);
+  };
+
+  const selectOrigin = (city: string) => {
+    setOrigin(city);
+    setShowOriginSuggestions(false);
   };
 
   return (
@@ -103,14 +120,32 @@ const TripPlanner: React.FC = () => {
             
             <div className="space-y-4">
               <div className="space-y-3">
-                <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-                  <Navigation className="ml-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    placeholder="From (e.g. London, New York)"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
+                <div className="relative">
+                  <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
+                    <Navigation className="ml-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      placeholder="From (e.g. London, New York)"
+                      value={origin}
+                      onChange={(e) => setOrigin(e.target.value)}
+                      onFocus={handleOriginFocus}
+                      onBlur={handleOriginBlur}
+                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
+                  
+                  {showOriginSuggestions && (
+                    <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border max-h-60 overflow-auto">
+                      {originCities.map((city, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => selectOrigin(city)}
+                        >
+                          {city}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
