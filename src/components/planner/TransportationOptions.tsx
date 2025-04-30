@@ -146,7 +146,7 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
                 <div className="mt-3 flex justify-between text-sm">
                   <div>
                     <div className="font-medium">{option.departure}</div>
-                    <div className="text-gray-500">{from.split(',')[0]}</div>
+                    <div className="text-gray-500">{origin.split(',')[0]}</div>
                   </div>
                   <div className="flex-1 flex items-center justify-center px-4">
                     <div className="w-full h-[1px] bg-gray-300 relative">
@@ -157,7 +157,7 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
                   </div>
                   <div className="text-right">
                     <div className="font-medium">{option.arrival}</div>
-                    <div className="text-gray-500">{to.split(',')[0]}</div>
+                    <div className="text-gray-500">{destination.split(',')[0]}</div>
                   </div>
                 </div>
                 <div className="mt-3 flex justify-end">
