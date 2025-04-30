@@ -65,11 +65,13 @@ const StepDestination: React.FC<StepDestinationProps> = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold text-travel-navy">Where are you traveling?</h2>
       
-      <div className="space-y-4">
+      <div className="space-y-6"> {/* Increased space between inputs */}
+        {/* Starting Location - Made more prominent */}
         <div className="relative">
-          <Label htmlFor="origin">Starting Location</Label>
-          <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-            <Navigation className="ml-3 h-5 w-5 text-gray-400" />
+          <Label htmlFor="origin" className="font-medium text-lg text-travel-navy">Starting Location</Label>
+          <p className="text-gray-500 text-sm mb-2">Where will your journey begin?</p>
+          <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal bg-white shadow-sm">
+            <Navigation className="ml-3 h-5 w-5 text-travel-teal" />
             <Input
               id="origin"
               placeholder="Where are you starting from? (e.g. London, Sydney)"
@@ -94,10 +96,12 @@ const StepDestination: React.FC<StepDestinationProps> = ({
           )}
         </div>
 
+        {/* Destination */}
         <div className="relative">
-          <Label htmlFor="destination">Destination</Label>
-          <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-            <MapPin className="ml-3 h-5 w-5 text-gray-400" />
+          <Label htmlFor="destination" className="font-medium text-lg text-travel-navy">Destination</Label>
+          <p className="text-gray-500 text-sm mb-2">Where do you want to go?</p>
+          <div className="flex items-center border mt-1 rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal bg-white shadow-sm">
+            <MapPin className="ml-3 h-5 w-5 text-travel-teal" />
             <Input
               id="destination"
               placeholder="Where are you going? (e.g. Paris, Tokyo)"

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -108,6 +107,7 @@ const TripPlanner: React.FC = () => {
               Our AI-powered trip planner creates customized itineraries based on your preferences, budget, and travel style. Get personalized recommendations and maximize your travel experience.
             </p>
             
+            {/* Features grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {features.map((feature, index) => (
                 <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -120,9 +120,10 @@ const TripPlanner: React.FC = () => {
             
             <div className="space-y-4">
               <div className="space-y-3">
+                {/* Starting Location Input - Make this more prominent */}
                 <div className="relative">
-                  <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-                    <Navigation className="ml-3 h-5 w-5 text-gray-400" />
+                  <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal bg-white">
+                    <Navigation className="ml-3 h-5 w-5 text-travel-teal" />
                     <Input
                       placeholder="From (e.g. London, New York)"
                       value={origin}
@@ -148,8 +149,9 @@ const TripPlanner: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal">
-                  <MapPin className="ml-3 h-5 w-5 text-gray-400" />
+                {/* Destination Input */}
+                <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-travel-teal/50 focus-within:border-travel-teal bg-white">
+                  <MapPin className="ml-3 h-5 w-5 text-travel-teal" />
                   <Input
                     placeholder="To (e.g. Paris, Tokyo)"
                     value={destination}
@@ -159,6 +161,7 @@ const TripPlanner: React.FC = () => {
                 </div>
               </div>
               
+              {/* Action buttons */}
               <Button 
                 onClick={() => handleCreateItinerary()}
                 className="bg-travel-blue hover:bg-travel-blue/90 text-white w-full"
