@@ -4,7 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Stepper } from '@/components/ui/stepper';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Loader } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -107,64 +107,133 @@ const Planner = () => {
     }
   };
 
+  // Framer Motion variants for animations
+  const pageVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { duration: 0.5 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } }
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5,
+        delay: 0.2
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <motion.div 
+      className="min-h-screen flex flex-col bg-gray-50"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+    >
       <Navbar />
       
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-24 pb-16">
         <div className="container max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-8 text-travel-navy">
+          <motion.h1 
+            className="text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-travel-blue to-travel-teal"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             Plan Your Perfect Trip
-          </h1>
+          </motion.h1>
           
           {step < 6 && (
-            <div className="mb-10">
+            <motion.div 
+              className="mb-10"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
               <Stepper steps={5} currentStep={step} className="mb-8" />
-            </div>
+            </motion.div>
           )}
           
-          {loading ? (
-            <div className="text-center py-12">
-              <motion.div
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div 
+                className="text-center py-16"
+                key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="inline-flex flex-col items-center"
+                exit={{ opacity: 0 }}
               >
-                <Loader className="h-16 w-16 text-travel-teal animate-spin mb-4" />
-                <h3 className="text-xl font-medium text-travel-navy">Creating your itinerary from {tripData.origin.split(',')[0]} to {tripData.destination.split(',')[0]}...</h3>
-                <p className="text-gray-500 mt-2">This might take a moment</p>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="inline-flex flex-col items-center"
+                >
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-travel-teal/10 absolute inset-0 animate-ping"></div>
+                    <Loader className="h-20 w-20 text-travel-teal animate-spin relative z-10" />
+                  </div>
+                  <h3 className="text-xl font-medium text-travel-navy mt-6">
+                    Creating your itinerary from {tripData.origin.split(',')[0]} to {tripData.destination.split(',')[0]}...
+                  </h3>
+                  <p className="text-gray-500 mt-2">We're crafting the perfect travel experience for you</p>
+                </motion.div>
               </motion.div>
-            </div>
-          ) : (
-            <>
-              <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-                {renderStep()}
-              </div>
-              
-              {step < 6 && (
-                <div className="flex justify-between mt-6">
-                  {step > 1 ? (
-                    <Button variant="outline" onClick={prevStep}>
-                      Previous
-                    </Button>
-                  ) : (
-                    <div />
-                  )}
-                  <Button 
-                    onClick={nextStep} 
-                    className="bg-travel-blue hover:bg-travel-blue/90"
-                  >
-                    {step === 5 ? 'Generate Itinerary' : 'Next'}
-                  </Button>
+            ) : (
+              <motion.div 
+                key={`step-${step}`}
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, y: -20 }}
+                variants={contentVariants}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-travel-blue/5 via-white to-travel-teal/5 rounded-xl blur-md"></div>
+                  <div className="backdrop-blur-sm bg-white/90 p-8 rounded-xl shadow-sm border border-blue-100/20 relative">
+                    {renderStep()}
+                  </div>
                 </div>
-              )}
-            </>
-          )}
+                
+                {step < 6 && (
+                  <motion.div 
+                    className="flex justify-between mt-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    {step > 1 ? (
+                      <Button 
+                        variant="outline" 
+                        onClick={prevStep}
+                        className="border-travel-blue text-travel-blue hover:bg-travel-blue/10 transition-all"
+                      >
+                        Previous
+                      </Button>
+                    ) : (
+                      <div />
+                    )}
+                    <Button 
+                      onClick={nextStep} 
+                      className="relative group overflow-hidden"
+                    >
+                      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-travel-blue to-travel-teal opacity-100 group-hover:opacity-90 transition-opacity"></span>
+                      <span className="relative text-white">
+                        {step === 5 ? 'Generate Itinerary' : 'Next'}
+                      </span>
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
       
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 
