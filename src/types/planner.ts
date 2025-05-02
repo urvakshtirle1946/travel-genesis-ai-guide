@@ -6,6 +6,7 @@ export type TripData = {
   endDate: Date | undefined;
   budgetType: 'fixed' | 'flexible';
   budget: number;
+  totalBudget: number; // New field for total budget
   interests: string[];
   selectedTransportation?: TransportOption;
 };

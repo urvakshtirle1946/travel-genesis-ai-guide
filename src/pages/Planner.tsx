@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { Stepper } from '@/components/ui/stepper';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader } from 'lucide-react';
+import { BadgeIndianRupee, Loader } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Import our new components and hooks
@@ -35,6 +35,7 @@ const Planner = () => {
     updateEndDate,
     updateBudgetType,
     updateBudget,
+    updateTotalBudget,
     updateInterests,
     updateTransportation,
     saveTrip
@@ -67,10 +68,14 @@ const Planner = () => {
           <StepBudget
             budgetType={tripData.budgetType}
             budget={tripData.budget}
+            totalBudget={tripData.totalBudget}
             suggestedBudget={suggestedBudget}
             destination={tripData.destination}
+            startDate={tripData.startDate}
+            endDate={tripData.endDate}
             onBudgetTypeChange={updateBudgetType}
             onBudgetChange={updateBudget}
+            onTotalBudgetChange={updateTotalBudget}
           />
         );
         
@@ -139,12 +144,13 @@ const Planner = () => {
       <main className="flex-1 pt-24 pb-16">
         <div className="container max-w-4xl">
           <motion.h1 
-            className="text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-travel-blue to-travel-teal"
+            className="text-3xl md:text-4xl font-bold mb-6 flex items-center gap-2 bg-clip-text text-transparent bg-gradient-to-r from-travel-blue to-travel-teal"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Plan Your Perfect Trip
+            <BadgeIndianRupee className="h-8 w-8 text-travel-teal" />
+            <span>Plan Your Perfect Trip</span>
           </motion.h1>
           
           {step < 6 && (

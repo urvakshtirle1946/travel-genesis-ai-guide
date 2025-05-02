@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
+import { BadgeIndianRupee } from 'lucide-react';
 
 interface BudgetOverviewProps {
   totalBudget: number;
@@ -20,9 +21,12 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
   return (
     <Card className="overflow-hidden border-0 shadow-lg bg-white/90 backdrop-blur-sm">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white/80 to-teal-50/50 rounded-lg -z-10"></div>
-      <CardHeader>
-        <CardTitle className="text-2xl text-travel-navy">Budget Overview</CardTitle>
-        <CardDescription>Total budget vs. amount spent</CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-2xl text-travel-navy flex items-center gap-2">
+          <BadgeIndianRupee className="h-6 w-6 text-travel-teal" />
+          Budget Overview
+        </CardTitle>
+        <CardDescription>Total trip budget vs. amount spent</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <motion.div 
@@ -69,8 +73,15 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
           >
             <Progress 
               value={percentSpent > 100 ? 100 : percentSpent} 
-              className={remainingBudget < 0 ? 'bg-red-100 h-3 rounded-lg' : 'h-3 rounded-lg bg-gray-100'}
-              indicatorClassName={remainingBudget < 0 ? 'bg-red-500' : 'bg-green-500'}
+              className={`${remainingBudget < 0 ? 'bg-red-100' : 'bg-gray-100'} h-3 rounded-lg`}
+              style={{
+                background: remainingBudget < 0 ? 'rgb(254, 226, 226)' : 'rgb(243, 244, 246)',
+              }}
+              indicator={remainingBudget < 0 ? {
+                className: 'bg-red-500'
+              } : {
+                className: 'bg-green-500'
+              }}
             />
           </motion.div>
           

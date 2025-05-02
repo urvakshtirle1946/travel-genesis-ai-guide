@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TripData, ItineraryDay, TransportOption } from '@/types/planner';
 import { destinationBudgetRanges } from '@/constants/plannerData';
+import { calculateTripDuration } from '@/utils/dateUtils';
 
 export const useTripPlanner = (user: any) => {
   const navigate = useNavigate();
@@ -17,11 +18,12 @@ export const useTripPlanner = (user: any) => {
     startDate: undefined,
     endDate: undefined,
     budgetType: 'fixed',
-    budget: 5000, // Default in INR
+    budget: 5000, // Daily budget in INR
+    totalBudget: 35000, // Total budget in INR (for the entire trip)
     interests: [],
   });
   const [itinerary, setItinerary] = useState<ItineraryDay[]>([]);
-  const [suggestedBudget, setSuggestedBudget] = useState({ min: 2500, max: 15000, average: 5000 }); // In INR
+  const [suggestedBudget, setSuggestedBudget] = useState({ min: 2500, max: 15000, average: 5000 }); // Daily in INR
   const [totalTripCost, setTotalTripCost] = useState(0);
   const [showAdditionalOptions, setShowAdditionalOptions] = useState(false);
 
@@ -49,6 +51,20 @@ export const useTripPlanner = (user: any) => {
     }
   }, [location]);
 
+  // Update total budget when dates change
+  useEffect(() => {
+    if (tripData.startDate && tripData.endDate) {
+      const days = calculateTripDuration(tripData.startDate, tripData.endDate);
+      if (days > 0) {
+        // Update total budget based on daily budget and trip duration
+        setTripData(prev => ({
+          ...prev,
+          totalBudget: prev.budget * days
+        }));
+      }
+    }
+  }, [tripData.startDate, tripData.endDate, tripData.budget]);
+
   // Check if user is authenticated
   useEffect(() => {
     if (!user) {
@@ -65,7 +81,17 @@ export const useTripPlanner = (user: any) => {
     for (const [dest, budgetRange] of Object.entries(destinationBudgetRanges)) {
       if (mainDestination.toLowerCase().includes(dest.toLowerCase()) || dest.toLowerCase().includes(mainDestination.toLowerCase())) {
         setSuggestedBudget(budgetRange);
-        setTripData(prev => ({...prev, budget: budgetRange.average}));
+        
+        // Calculate initial budget values
+        const days = calculateTripDuration(tripData.startDate, tripData.endDate) || 1;
+        const dailyBudget = budgetRange.average;
+        const calculatedTotalBudget = dailyBudget * days;
+        
+        setTripData(prev => ({
+          ...prev, 
+          budget: dailyBudget,
+          totalBudget: calculatedTotalBudget
+        }));
         break;
       }
     }
@@ -113,6 +139,17 @@ export const useTripPlanner = (user: any) => {
     setTripData({
       ...tripData,
       budget: value[0]
+    });
+  };
+
+  const updateTotalBudget = (value: number[]) => {
+    const newTotalBudget = value[0];
+    const days = calculateTripDuration(tripData.startDate, tripData.endDate) || 1;
+    
+    setTripData({
+      ...tripData,
+      totalBudget: newTotalBudget,
+      budget: Math.round(newTotalBudget / days) // Update daily budget based on new total
     });
   };
 
@@ -198,9 +235,7 @@ export const useTripPlanner = (user: any) => {
       // For demo, let's create a mock itinerary after a delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      const dayCount = tripData.endDate && tripData.startDate 
-        ? Math.ceil((tripData.endDate.getTime() - tripData.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-        : 3;
+      const dayCount = calculateTripDuration(tripData.startDate, tripData.endDate);
       
       // Generate activities based on destination and user interests
       const mockItinerary: ItineraryDay[] = Array.from({ length: dayCount }, (_, i) => {
@@ -411,7 +446,10 @@ export const useTripPlanner = (user: any) => {
         return total + activitiesCost + accommodationCost + transportationCost;
       }, 0);
       
-      setTotalTripCost(totalCost);
+      // Add the selected transportation cost if any
+      const transportationTotalCost = tripData.selectedTransportation ? tripData.selectedTransportation.price : 0;
+      
+      setTotalTripCost(totalCost + transportationTotalCost);
       setItinerary(mockItinerary);
       setStep(6); // Move to results
       setShowAdditionalOptions(true); // Show additional recommendations
@@ -441,6 +479,7 @@ export const useTripPlanner = (user: any) => {
     updateEndDate,
     updateBudgetType,
     updateBudget,
+    updateTotalBudget,
     updateInterests,
     updateTransportation,
     saveTrip,
