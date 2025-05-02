@@ -9,7 +9,7 @@ interface BudgetCategory {
   name: string;
   budget: number;
   spent: number;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }
 
 interface CategorySpendingProps {
@@ -31,12 +31,11 @@ const CategorySpending: React.FC<CategorySpendingProps> = ({ categories }) => {
           {categories.map(category => (
             <li key={category.id} className="flex items-center justify-between">
               <div className="flex items-center">
-                {/* Properly render the icon component */}
-                <span className="mr-2">{category.icon}</span>
+                {category.icon}
                 <span className="ml-2">{category.name}</span>
               </div>
               <div className="text-right">
-                <div>${category.spent.toFixed(2)} <span className="text-gray-400">/ ${category.budget.toFixed(2)}</span></div>
+                <div>₹{category.spent.toFixed(2)} <span className="text-gray-400">/ ₹{category.budget.toFixed(2)}</span></div>
                 <Progress 
                   value={(category.spent / category.budget) * 100} 
                   className={`h-1 w-24 ${category.spent > category.budget ? 'bg-red-100' : ''}`}

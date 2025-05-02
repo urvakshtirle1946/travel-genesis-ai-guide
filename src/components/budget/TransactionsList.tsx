@@ -12,7 +12,7 @@ interface Transaction {
 
 interface TransactionsListProps {
   transactions: Transaction[];
-  categories: { id: number; name: string; icon: JSX.Element }[];
+  categories: { id: number; name: string; icon: React.ReactNode }[];
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({ transactions, categories }) => {
@@ -55,16 +55,13 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ transactions, categ
                       <td className="px-6 py-4 whitespace-nowrap">{transaction.date}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {/* Safely render the icon */}
-                          {categoryObj ? (
-                            <span className="mr-2">{categoryObj.icon}</span>
-                          ) : null}
+                          {categoryObj && categoryObj.icon}
                           <span className="ml-2">{transaction.category}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">{transaction.description}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        ${transaction.amount.toFixed(2)}
+                        ₹{transaction.amount.toFixed(2)}
                       </td>
                     </tr>
                   );

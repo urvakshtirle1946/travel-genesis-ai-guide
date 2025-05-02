@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { CalendarDays } from "lucide-react";
 
 interface ExpenseFormProps {
   onAddExpense: (expense: any) => void;
-  categories: { id: number; name: string; icon: JSX.Element }[];
+  categories: { id: number; name: string; icon: React.ReactNode }[];
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense, categories }) => {
@@ -85,8 +86,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense, categories }) =
               {categories.map(cat => (
                 <SelectItem key={cat.id} value={cat.name}>
                   <div className="flex items-center">
-                    <span className="mr-2">{cat.icon}</span>
-                    <span>{cat.name}</span>
+                    {cat.icon}
+                    <span className="ml-2">{cat.name}</span>
                   </div>
                 </SelectItem>
               ))}

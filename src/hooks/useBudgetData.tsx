@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Hotel, PlaneTakeoff, Utensils, MapPin, ShoppingBag } from 'lucide-react';
-import React from 'react'; // Add React import for JSX elements
+import React from 'react';
 
 // Define the category types with their icons
 const expenseCategories = [
@@ -17,7 +18,7 @@ export interface BudgetCategory {
   name: string;
   budget: number;
   spent: number;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }
 
 export interface Transaction {
@@ -57,14 +58,50 @@ export const useBudgetData = (userId: string | null) => {
     // Load budget data from localStorage
     const savedBudgetData = localStorage.getItem('budgetData');
     if (savedBudgetData) {
-      setBudgetData(JSON.parse(savedBudgetData));
+      try {
+        // Parse the saved data
+        const parsed = JSON.parse(savedBudgetData);
+        
+        // We need to reattach the React icon components since they can't be serialized
+        const restoredData = {
+          ...parsed,
+          categories: parsed.categories.map((cat: any) => {
+            // Find the matching category from our predefined list to get the icon
+            const originalCat = expenseCategories.find(c => c.id === cat.id);
+            return {
+              ...cat,
+              icon: originalCat ? originalCat.icon : null
+            };
+          })
+        };
+        
+        setBudgetData(restoredData);
+      } catch (error) {
+        console.error("Error restoring budget data:", error);
+      }
     }
   }, [userId]);
 
   // Save budget data to localStorage whenever it changes
   useEffect(() => {
     if (userId) {
-      localStorage.setItem('budgetData', JSON.stringify(budgetData));
+      try {
+        // We need to remove the icon components before saving as they can't be serialized
+        const dataForStorage = {
+          ...budgetData,
+          categories: budgetData.categories.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            budget: cat.budget,
+            spent: cat.spent
+            // Omit the icon property
+          }))
+        };
+        
+        localStorage.setItem('budgetData', JSON.stringify(dataForStorage));
+      } catch (error) {
+        console.error("Error saving budget data:", error);
+      }
     }
   }, [budgetData, userId]);
 
