@@ -56,7 +56,7 @@ const StepBudget: React.FC<StepBudgetProps> = ({
           <div className="flex justify-between items-center">
             <Label htmlFor="budget" className="font-medium">Daily Budget</Label>
             <div className="bg-travel-teal/10 text-travel-teal px-3 py-1 rounded-full font-medium">
-              ${budget}/day
+              ₹{budget}/day
             </div>
           </div>
 
@@ -64,7 +64,7 @@ const StepBudget: React.FC<StepBudgetProps> = ({
             id="budget"
             min={suggestedBudget.min}
             max={suggestedBudget.max}
-            step={10}
+            step={500}
             value={[budget]}
             onValueChange={onBudgetChange}
             className="my-4"
@@ -73,9 +73,9 @@ const StepBudget: React.FC<StepBudgetProps> = ({
           <div className="flex justify-between text-sm text-gray-500">
             <div>Budget ({destination.split(',')[0]})</div>
             <div className="flex space-x-4">
-              <span>Min: ${suggestedBudget.min}</span>
-              <span>Avg: ${suggestedBudget.average}</span>
-              <span>Max: ${suggestedBudget.max}</span>
+              <span>Min: ₹{suggestedBudget.min}</span>
+              <span>Avg: ₹{suggestedBudget.average}</span>
+              <span>Max: ₹{suggestedBudget.max}</span>
             </div>
           </div>
 
@@ -85,7 +85,7 @@ const StepBudget: React.FC<StepBudgetProps> = ({
               <div>
                 <h4 className="font-medium text-travel-navy">Budget Tip</h4>
                 <p className="text-sm text-gray-600">
-                  The average daily cost in {destination.split(',')[0]} is around ${suggestedBudget.average}, 
+                  The average daily cost in {destination.split(',')[0]} is around ₹{suggestedBudget.average}, 
                   including accommodation, meals, and attractions.
                 </p>
               </div>

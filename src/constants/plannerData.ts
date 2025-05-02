@@ -15,42 +15,42 @@ export const interests: Interest[] = [
 
 // Sample destinations for autocomplete
 export const popularDestinations = [
-  'Bali, Indonesia',
-  'Paris, France',
-  'Tokyo, Japan',
-  'New York, USA',
-  'Rome, Italy',
-  'Santorini, Greece',
-  'Bangkok, Thailand',
-  'London, UK',
-  'Sydney, Australia',
-  'Dubai, UAE'
+  'Goa, India',
+  'Jaipur, India',
+  'Kerala, India',
+  'Ladakh, India',
+  'Varanasi, India',
+  'Delhi, India',
+  'Mumbai, India',
+  'Udaipur, India',
+  'Darjeeling, India',
+  'Rishikesh, India'
 ];
 
 // Sample origins for autocomplete
 export const popularOrigins = [
-  'London, UK',
-  'New York, USA',
-  'Sydney, Australia',
-  'Toronto, Canada',
-  'Dubai, UAE',
-  'Singapore',
-  'Berlin, Germany',
-  'San Francisco, USA',
+  'Delhi, India',
   'Mumbai, India',
-  'Shanghai, China'
+  'Bangalore, India',
+  'Chennai, India',
+  'Kolkata, India',
+  'Hyderabad, India',
+  'Pune, India',
+  'Ahmedabad, India',
+  'Jaipur, India',
+  'Lucknow, India'
 ];
 
-// Budget ranges by destination (approximate daily costs in USD)
+// Budget ranges by destination (approximate daily costs in INR)
 export const destinationBudgetRanges: Record<string, { min: number; max: number; average: number }> = {
-  'Bali': { min: 30, max: 200, average: 70 },
-  'Paris': { min: 80, max: 400, average: 150 },
-  'Tokyo': { min: 70, max: 350, average: 120 },
-  'New York': { min: 100, max: 500, average: 200 },
-  'Rome': { min: 70, max: 300, average: 120 },
-  'Santorini': { min: 90, max: 400, average: 150 },
-  'Bangkok': { min: 30, max: 150, average: 60 },
-  'London': { min: 90, max: 400, average: 170 },
-  'Sydney': { min: 80, max: 350, average: 130 },
-  'Dubai': { min: 100, max: 500, average: 200 }
+  'Goa': { min: 2000, max: 15000, average: 5000 },
+  'Jaipur': { min: 1800, max: 10000, average: 4000 },
+  'Kerala': { min: 2500, max: 12000, average: 5500 },
+  'Ladakh': { min: 3000, max: 15000, average: 6000 },
+  'Varanasi': { min: 1500, max: 8000, average: 3000 },
+  'Delhi': { min: 2000, max: 12000, average: 4500 },
+  'Mumbai': { min: 2500, max: 20000, average: 7000 },
+  'Udaipur': { min: 2200, max: 15000, average: 5000 },
+  'Darjeeling': { min: 2000, max: 10000, average: 4000 },
+  'Rishikesh': { min: 1800, max: 8000, average: 3500 }
 };
