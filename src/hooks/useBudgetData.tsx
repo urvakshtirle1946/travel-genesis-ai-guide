@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Hotel, PlaneTakeoff, Utensils, MapPin, ShoppingBag } from 'lucide-react';
+import React from 'react'; // Add React import for JSX elements
 
 // Define the category types with their icons
 const expenseCategories = [
@@ -36,6 +36,7 @@ export interface BudgetData {
 }
 
 export const useBudgetData = (userId: string | null) => {
+  
   const [budgetData, setBudgetData] = useState<BudgetData>({
     total: 5000,
     spent: 0,
@@ -49,6 +50,7 @@ export const useBudgetData = (userId: string | null) => {
     transactions: []
   });
 
+  
   useEffect(() => {
     if (!userId) return;
 

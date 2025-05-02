@@ -47,21 +47,28 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ transactions, categ
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {transactions.map(transaction => (
-                  <tr key={transaction.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{transaction.date}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {categories.find(cat => cat.name === transaction.category)?.icon}
-                        <span className="ml-2">{transaction.category}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">{transaction.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      ${transaction.amount.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
+                {transactions.map(transaction => {
+                  const categoryObj = categories.find(cat => cat.name === transaction.category);
+                  
+                  return (
+                    <tr key={transaction.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction.date}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {/* Safely render the icon */}
+                          {categoryObj ? (
+                            <span className="mr-2">{categoryObj.icon}</span>
+                          ) : null}
+                          <span className="ml-2">{transaction.category}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">{transaction.description}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        ${transaction.amount.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

@@ -31,7 +31,8 @@ const CategorySpending: React.FC<CategorySpendingProps> = ({ categories }) => {
           {categories.map(category => (
             <li key={category.id} className="flex items-center justify-between">
               <div className="flex items-center">
-                {category.icon}
+                {/* Properly render the icon component */}
+                <span className="mr-2">{category.icon}</span>
                 <span className="ml-2">{category.name}</span>
               </div>
               <div className="text-right">

@@ -23,16 +23,16 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <span>Total Budget:</span>
-          <span className="font-medium">${totalBudget.toFixed(2)}</span>
+          <span className="font-medium">₹{totalBudget.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between">
           <span>Total Spent:</span>
-          <span className="font-medium">${totalSpent.toFixed(2)}</span>
+          <span className="font-medium">₹{totalSpent.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between">
           <span>Remaining Budget:</span>
           <span className={`font-medium ${remainingBudget < 0 ? 'text-red-500' : ''}`}>
-            ${remainingBudget.toFixed(2)}
+            ₹{remainingBudget.toFixed(2)}
           </span>
         </div>
         <Progress 
