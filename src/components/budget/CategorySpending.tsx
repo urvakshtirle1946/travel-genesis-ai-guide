@@ -122,7 +122,7 @@ const CategorySpending: React.FC<CategorySpendingProps> = ({ categories }) => {
                     <div className="w-24 mt-1">
                       <Progress 
                         value={percentage > 100 ? 100 : percentage} 
-                        className={`h-1.5 ${isOverBudget ? 'bg-red-100' : ''}`}
+                        className={isOverBudget ? 'bg-red-100' : ''}
                         indicatorClassName={isOverBudget ? 'bg-red-500' : ''}
                       />
                     </div>

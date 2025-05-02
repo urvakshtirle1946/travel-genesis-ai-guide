@@ -38,6 +38,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
         <Progress 
           value={(totalSpent / totalBudget) * 100} 
           className={remainingBudget < 0 ? 'bg-red-100' : ''}
+          indicatorClassName={remainingBudget < 0 ? 'bg-red-500' : ''}
         />
       </CardContent>
       <CardFooter className="text-sm text-gray-500">
