@@ -18,14 +18,17 @@ const Index = () => {
       
       <main className="flex-1">
         <HeroSection />
-        {user ? (
-          <>
-            <FeaturedDestinations />
-            <TripPlanner />
-          </>
-        ) : (
-          <AuthPrompt />
-        )}
+        
+        <div id="features-section">
+          {user ? (
+            <>
+              <FeaturedDestinations />
+              <TripPlanner />
+            </>
+          ) : (
+            <AuthPrompt />
+          )}
+        </div>
       </main>
       
       <Footer />
