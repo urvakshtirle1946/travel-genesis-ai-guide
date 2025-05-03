@@ -77,11 +77,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
               style={{
                 background: remainingBudget < 0 ? 'rgb(254, 226, 226)' : 'rgb(243, 244, 246)',
               }}
-              indicator={remainingBudget < 0 ? {
-                className: 'bg-red-500'
-              } : {
-                className: 'bg-green-500'
-              }}
+              indicatorClassName={remainingBudget < 0 ? 'bg-red-500' : 'bg-green-500'}
             />
           </motion.div>
           
