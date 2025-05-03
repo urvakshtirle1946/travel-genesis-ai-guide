@@ -41,7 +41,10 @@ const LiveHotelRecommendations: React.FC<LiveHotelRecommendationsProps> = ({ des
             amenities: ['WiFi', 'AC', 'Parking', 'Restaurant'],
             checkInAvailable: true,
             images: ['/placeholder.svg'],
-            availability: 'high'
+            availability: 'high',
+            type: 'Budget Hotel',
+            description: 'Comfortable and affordable stay in the heart of the city.',
+            deals: ['Early bird discount', '10% off for weekday stays']
           },
           {
             id: 'hotel-2',
@@ -55,7 +58,10 @@ const LiveHotelRecommendations: React.FC<LiveHotelRecommendationsProps> = ({ des
             amenities: ['WiFi', 'AC', 'Parking', 'Restaurant', 'Pool', 'Gym'],
             checkInAvailable: true,
             images: ['/placeholder.svg'],
-            availability: 'medium'
+            availability: 'medium',
+            type: 'Luxury Hotel',
+            description: 'Experience luxury and comfort with excellent amenities and service.',
+            deals: ['Breakfast included', 'Complimentary airport transfer']
           },
           {
             id: 'hotel-3',
@@ -69,7 +75,10 @@ const LiveHotelRecommendations: React.FC<LiveHotelRecommendationsProps> = ({ des
             amenities: ['WiFi', 'AC'],
             checkInAvailable: false,
             images: ['/placeholder.svg'],
-            availability: 'low'
+            availability: 'low',
+            type: 'Economy Hotel',
+            description: 'Simple and budget-friendly accommodation for travelers.',
+            deals: ['Weekly discount']
           },
           {
             id: 'hotel-4',
@@ -83,7 +92,10 @@ const LiveHotelRecommendations: React.FC<LiveHotelRecommendationsProps> = ({ des
             amenities: ['WiFi', 'AC', 'Parking', 'Restaurant', 'Pool', 'Gym', 'Spa'],
             checkInAvailable: true,
             images: ['/placeholder.svg'],
-            availability: 'high'
+            availability: 'high',
+            type: 'Premium Resort',
+            description: 'Premium resort offering luxurious rooms and extensive facilities.',
+            deals: ['Spa voucher included', '15% off on dining']
           },
         ];
         
