@@ -1,15 +1,19 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import HotelRecommendations from '@/components/planner/HotelRecommendations';
 import ShoppingRecommendations from '@/components/planner/ShoppingRecommendations';
 import { TripData, ItineraryDay, TransportOption } from '@/types/planner';
 import { motion } from 'framer-motion';
-import { BadgeIndianRupee, Calendar, MapPin, Plane } from 'lucide-react';
-import BudgetOverview from '@/components/budget/BudgetOverview';
+import { BadgeIndianRupee, Calendar, Plane } from 'lucide-react';
 import { calculateTripDuration } from '@/utils/dateUtils';
+
+// Import refactored components
+import TransportationDetail from './itinerary/TransportationDetail';
+import DayItinerary from './itinerary/DayItinerary';
+import BudgetSummary from './itinerary/BudgetSummary';
+import TripDetails from './itinerary/TripDetails';
 
 interface ItineraryResultProps {
   tripData: TripData;
@@ -85,103 +89,16 @@ const ItineraryResult: React.FC<ItineraryResultProps> = ({
         variants={itemVariants}
       >
         <div className="lg:col-span-3">
-          <div className="relative overflow-hidden rounded-xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-teal-50 opacity-70"></div>
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-blue-100/50 relative">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-2">
-                  <BadgeIndianRupee className="h-5 w-5 text-travel-teal" />
-                  <h3 className="font-semibold text-xl text-travel-navy">Trip Budget Summary</h3>
-                </div>
-                <div className="text-xl font-bold text-travel-teal bg-travel-teal/10 px-4 py-1.5 rounded-full">
-                  ₹{totalTripCost.toLocaleString('en-IN')} <span className="text-sm font-normal">total</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-50">
-                  <div className="text-sm text-gray-500 mb-1">Total Budget</div>
-                  <div className="text-lg font-medium text-travel-navy">₹{tripData.totalBudget.toLocaleString('en-IN')}</div>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-50">
-                  <div className="text-sm text-gray-500 mb-1">Daily Budget</div>
-                  <div className="text-lg font-medium text-travel-navy">₹{tripData.budget.toLocaleString('en-IN')}/day</div>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-50">
-                  <div className="text-sm text-gray-500 mb-1">Budget Status</div>
-                  <div className={`text-lg font-medium ${
-                    remainingBudget < 0 ? "text-red-500" : "text-green-500"}`
-                  }>
-                    {remainingBudget < 0 
-                      ? `₹${Math.abs(remainingBudget).toLocaleString('en-IN')} over budget` 
-                      : `₹${remainingBudget.toLocaleString('en-IN')} under budget`}
-                  </div>
-                </div>
-              </div>
-              
-              <BudgetOverview 
-                totalBudget={tripData.totalBudget} 
-                totalSpent={totalTripCost} 
-                remainingBudget={remainingBudget} 
-              />
-            </div>
-          </div>
+          <BudgetSummary
+            totalBudget={tripData.totalBudget}
+            totalTripCost={totalTripCost}
+            dailyBudget={tripData.budget}
+            remainingBudget={remainingBudget}
+          />
         </div>
         
         <div className="lg:col-span-2">
-          <div className="relative overflow-hidden rounded-xl h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-travel-blue/5 to-travel-teal/5"></div>
-            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-lg border border-travel-blue/20 relative h-full">
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="font-semibold text-lg text-travel-navy flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-travel-teal" />
-                  Trip Details
-                </h3>
-                <div className="bg-blue-50 text-travel-blue text-xs px-3 py-1 rounded-full">
-                  {tripData.budgetType === 'fixed' ? 'Fixed Budget' : 'Flexible Budget'}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-green-50 rounded-full">
-                    <MapPin className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Origin</div>
-                    <div className="font-medium">{tripData.origin}</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-blue-50 rounded-full">
-                    <MapPin className="h-4 w-4 text-travel-blue" />
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Destination</div>
-                    <div className="font-medium">{tripData.destination}</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-amber-50 rounded-full">
-                    <BadgeIndianRupee className="h-4 w-4 text-amber-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Interests</div>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {tripData.interests.map((interest, index) => (
-                        <Badge key={index} className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-0">
-                          {interest}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <TripDetails tripData={tripData} />
         </div>
       </motion.div>
       
@@ -244,149 +161,6 @@ const ItineraryResult: React.FC<ItineraryResultProps> = ({
           )}
         </motion.div>
       )}
-    </motion.div>
-  );
-};
-
-// Helper component for transportation details
-const TransportationDetail: React.FC<{
-  transportation: TransportOption;
-  origin: string;
-  destination: string;
-}> = ({ transportation, origin, destination }) => {
-  return (
-    <motion.div 
-      className="relative overflow-hidden rounded-xl"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-travel-blue/5 to-travel-teal/5"></div>
-      <div className="bg-white/90 backdrop-blur-sm p-6 rounded-lg border border-travel-blue/20 relative">
-        <h3 className="font-semibold text-lg text-travel-navy mb-4 flex items-center gap-2">
-          <Plane className="h-5 w-5 text-travel-teal" />
-          Selected Transportation
-        </h3>
-        <div className="flex justify-between items-start">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-travel-blue/10 to-travel-teal/10 rounded-full">
-              {transportation.icon}
-            </div>
-            <div>
-              <h4 className="font-medium text-lg text-travel-navy">{transportation.name}</h4>
-              <div className="text-sm text-gray-500 mt-1">
-                Provider: {transportation.provider}
-                {transportation.stops > 0 && <span> • {transportation.stops} stop{transportation.stops > 1 ? 's' : ''}</span>}
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="font-bold text-lg text-travel-blue flex items-center gap-1 justify-end">
-              <BadgeIndianRupee className="h-4 w-4" />
-              {transportation.price.toLocaleString('en-IN')}
-            </div>
-            <div className="text-sm text-gray-500">{transportation.duration}</div>
-          </div>
-        </div>
-        <div className="mt-6 flex justify-between text-sm relative">
-          <div className="w-full h-[1px] bg-gray-300 absolute top-4"></div>
-          
-          <div className="bg-white px-3 z-10">
-            <div className="font-medium">{transportation.departure}</div>
-            <div className="text-gray-500">{origin.split(',')[0]}</div>
-          </div>
-          
-          <div className="z-10 bg-white px-4">
-            <div className="text-xs text-center text-gray-500 -mt-2 mb-2">{transportation.duration}</div>
-          </div>
-          
-          <div className="bg-white px-3 z-10">
-            <div className="font-medium text-right">{transportation.arrival}</div>
-            <div className="text-gray-500 text-right">{destination.split(',')[0]}</div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// Helper component for day itinerary
-const DayItinerary: React.FC<{
-  day: ItineraryDay;
-  startDate: Date | undefined;
-  destination: string;
-}> = ({ day, startDate, destination }) => {
-  return (
-    <motion.div 
-      className="bg-white shadow-md rounded-xl overflow-hidden border border-gray-100 mb-6 relative"
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-travel-blue/5 to-travel-teal/5 -z-10"></div>
-      
-      <div className="bg-gradient-to-r from-travel-blue to-travel-teal text-white p-4">
-        <h3 className="text-xl font-medium">Day {day.day}</h3>
-        {startDate && (
-          <p className="text-sm opacity-90">
-            {format(
-              new Date(startDate.getTime() + (day.day - 1) * 24 * 60 * 60 * 1000), 
-              "EEEE, MMMM d, yyyy"
-            )}
-          </p>
-        )}
-      </div>
-      
-      <div className="divide-y">
-        {day.activities.map((activity, index) => (
-          <motion.div 
-            key={index} 
-            className="p-4 hover:bg-gray-50 transition-colors"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 * index }}
-          >
-            <div className="flex justify-between">
-              <span className="font-medium text-travel-navy bg-travel-blue/10 px-2 py-0.5 rounded">{activity.time}</span>
-              <div className="flex items-center space-x-2">
-                {activity.cost !== undefined && (
-                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center">
-                    <BadgeIndianRupee className="h-3 w-3 mr-0.5" />
-                    {activity.cost.toLocaleString('en-IN')}
-                  </span>
-                )}
-                <Badge className="bg-travel-teal/10 text-travel-teal hover:bg-travel-teal/20 border-0">
-                  {activity.type}
-                </Badge>
-              </div>
-            </div>
-            <h4 className="font-semibold mt-2 text-lg">{activity.title}</h4>
-            <p className="text-gray-600 text-sm mt-1">{activity.description}</p>
-          </motion.div>
-        ))}
-
-        <div className="p-4 bg-gray-50/80">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <svg className="h-4 w-4 text-travel-teal mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-              <span className="text-sm font-medium text-gray-700">Accommodation</span>
-            </div>
-            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center">
-              <BadgeIndianRupee className="h-3 w-3 mr-0.5" />
-              {destination.toLowerCase().includes('bali') ? '2,800' : 
-               destination.toLowerCase().includes('paris') ? '8,400' : 
-               destination.toLowerCase().includes('tokyo') ? '7,000' : 
-               destination.toLowerCase().includes('new york') ? '10,500' : '5,600'}
-            </span>
-          </div>
-          <div className="text-sm text-gray-600 mt-1 ml-6">
-            {destination.toLowerCase().includes('bali') ? 'Standard Villa' : 
-             destination.toLowerCase().includes('paris') ? 'Boutique Hotel' : 
-             destination.toLowerCase().includes('tokyo') ? 'Business Hotel' : 
-             destination.toLowerCase().includes('new york') ? 'Manhattan Hotel' : 'Standard Hotel'}
-          </div>
-        </div>
-      </div>
     </motion.div>
   );
 };
