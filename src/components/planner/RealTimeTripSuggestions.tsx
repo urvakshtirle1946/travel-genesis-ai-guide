@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -12,7 +11,7 @@ import {
   Bus,
   Train,
   TrainFront,
-  Cab,
+  Car,
   Filter,
   ArrowUpDown
 } from 'lucide-react';
@@ -159,7 +158,7 @@ const RealTimeTripSuggestions: React.FC<RealTimeTripSuggestionsProps> = ({
                   <span>Bus</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setFilterType('cab')}>
-                  <Cab className="mr-2 h-4 w-4" />
+                  <Car className="mr-2 h-4 w-4" />
                   <span>Cab</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

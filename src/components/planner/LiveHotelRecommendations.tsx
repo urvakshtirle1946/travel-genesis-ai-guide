@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -11,7 +10,7 @@ import {
   Wifi,
   Utensils,
   AirVent,
-  Parking
+  Car
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -151,7 +150,7 @@ const LiveHotelRecommendations: React.FC<LiveHotelRecommendationsProps> = ({ des
       case 'ac':
         return <AirVent className="h-4 w-4" />;
       case 'parking':
-        return <Parking className="h-4 w-4" />;
+        return <Car className="h-4 w-4" />;
       default:
         return null;
     }

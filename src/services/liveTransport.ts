@@ -1,6 +1,5 @@
-
 import { TransportOption } from '@/types/planner';
-import { Bus, Train, TrainFront, Cab } from 'lucide-react';
+import { Bus, Train, TrainFront, Car } from 'lucide-react';
 import React from 'react';
 
 // Helper function to generate random time within a range
@@ -128,7 +127,7 @@ export const generateLiveTransportOptions = async (
       departure: departureTime,
       arrival: arrivalTime,
       stops: 0,
-      icon: React.createElement(Cab, { className: "h-5 w-5 text-yellow-600" }),
+      icon: React.createElement(Car, { className: "h-5 w-5 text-yellow-600" }),
       availability: 'available',
       status: 'on-time',
       distance: `${distanceKm} km`,
