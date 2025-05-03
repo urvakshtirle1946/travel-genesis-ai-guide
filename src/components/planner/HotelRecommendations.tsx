@@ -1,26 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Star, Navigation, BadgeDollarSign } from 'lucide-react';
+import HotelList from './hotels/HotelList';
+import HotelSortControls from './hotels/HotelSortControls';
+import { HotelOption } from '@/types/planner';
 
 interface HotelRecommendationsProps {
   destination: string;
-}
-
-interface HotelOption {
-  id: string;
-  name: string;
-  type: string;
-  pricePerNight: number;
-  rating: number;
-  reviews: number;
-  amenities: string[];
-  description: string;
-  location: string;
-  distance: string;
-  deals: string[];
 }
 
 const HotelRecommendations: React.FC<HotelRecommendationsProps> = ({ destination }) => {
@@ -44,6 +29,7 @@ const HotelRecommendations: React.FC<HotelRecommendationsProps> = ({ destination
     }, 1000);
   }, [destination, sortBy]);
 
+  // Generate mock hotels based on destination
   const generateMockHotels = (location: string): HotelOption[] => {
     const dest = location.toLowerCase().split(',')[0];
     const hotels: HotelOption[] = [];
@@ -229,110 +215,15 @@ const HotelRecommendations: React.FC<HotelRecommendationsProps> = ({ destination
         <CardTitle>Hotel Recommendations</CardTitle>
         <div className="flex items-center space-x-2 mt-2">
           <span className="text-sm text-gray-500">Sort by:</span>
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              variant={sortBy === 'price' ? 'default' : 'outline'}
-              onClick={() => setSortBy('price')}
-              className={sortBy === 'price' ? 'bg-travel-teal' : ''}
-            >
-              Best Price
-            </Button>
-            <Button 
-              size="sm" 
-              variant={sortBy === 'rating' ? 'default' : 'outline'}
-              onClick={() => setSortBy('rating')}
-              className={sortBy === 'rating' ? 'bg-travel-teal' : ''}
-            >
-              Top Rated
-            </Button>
-          </div>
+          <HotelSortControls sortBy={sortBy} setSortBy={setSortBy} />
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-travel-blue"></div>
-            <p className="mt-2 text-gray-500">Finding the best hotel options...</p>
-          </div>
-        ) : hotels.length > 0 ? (
-          <div className="space-y-4">
-            {hotels.map((hotel) => (
-              <div key={hotel.id} className="border rounded-lg p-4 hover:border-travel-teal hover:bg-travel-teal/5">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium">{hotel.name}</h3>
-                    <div className="flex items-center mt-1">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star 
-                            key={star}
-                            className={`h-3 w-3 ${star <= Math.floor(hotel.rating) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-500 ml-1">
-                        {hotel.rating.toFixed(1)} ({hotel.reviews} reviews)
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-travel-blue">${hotel.pricePerNight}</div>
-                    <div className="text-xs text-gray-500">per night</div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2 mt-2">
-                  <Badge variant="outline" className="text-xs">
-                    {hotel.type}
-                  </Badge>
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Navigation className="h-3 w-3 mr-1" />
-                    {hotel.distance}
-                  </div>
-                </div>
-                
-                <p className="text-sm text-gray-600 mt-2">{hotel.description}</p>
-                
-                <div className="mt-3">
-                  <div className="text-xs text-gray-500">Amenities:</div>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {hotel.amenities.map((amenity, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {amenity}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                {hotel.deals.length > 0 && (
-                  <div className="mt-3 p-2 bg-green-50 rounded-md border border-green-100">
-                    <div className="flex items-center text-green-700 text-xs font-medium">
-                      <BadgeDollarSign className="h-3 w-3 mr-1" />
-                      Special Deals:
-                    </div>
-                    <ul className="text-xs text-green-700 mt-1">
-                      {hotel.deals.map((deal, i) => (
-                        <li key={i} className="list-disc list-inside">{deal}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                <div className="mt-3 flex justify-end">
-                  <Button variant="outline" size="sm" className="text-travel-teal border-travel-teal">
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-500">
-            <p>No hotel recommendations found for {destination}.</p>
-            <p className="mt-2">Try a different destination.</p>
-          </div>
-        )}
+        <HotelList 
+          hotels={hotels}
+          loading={loading}
+          destination={destination}
+        />
       </CardContent>
     </Card>
   );
