@@ -2,27 +2,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlaneTakeoff, Route, Navigation, Star } from 'lucide-react';
+import { PlaneTakeoff, Route, Navigation, Star, IndianRupee } from 'lucide-react';
+import { TransportOption } from '@/types/planner';
 
 interface TransportationOptionsProps {
   origin: string;
   destination: string;
   onSelectOption: (option: TransportOption) => void;
-}
-
-export interface TransportOption {
-  id: string;
-  type: string;
-  icon: JSX.Element;
-  name: string;
-  price: number;
-  duration: string;
-  departure: string;
-  arrival: string;
-  stops: number;
-  provider: string;
-  rating?: number;
-  reviews?: number;
 }
 
 const TransportationOptions: React.FC<TransportationOptionsProps> = ({ 
@@ -77,12 +63,12 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
       type: 'flight',
       icon: <PlaneTakeoff className="h-5 w-5" />,
       name: `${from.split(',')[0]} to ${to.split(',')[0]} Direct Flight`,
-      price: Math.floor(Math.random() * 300) + 100,
+      price: Math.floor(Math.random() * 15000) + 8000,
       duration: `${Math.floor(Math.random() * 5) + 1}h ${Math.floor(Math.random() * 60)}m`,
       departure: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
       arrival: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
       stops: 0,
-      provider: ['Air France', 'Lufthansa', 'Emirates', 'Singapore Airlines', 'Delta'][Math.floor(Math.random() * 5)],
+      provider: ['Air India', 'IndiGo', 'SpiceJet', 'Vistara', 'Air Asia'][Math.floor(Math.random() * 5)],
       rating: Math.floor(Math.random() * 2) + 3.5,
       reviews: Math.floor(Math.random() * 2000) + 500
     });
@@ -92,12 +78,12 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
       type: 'flight',
       icon: <PlaneTakeoff className="h-5 w-5" />,
       name: `${from.split(',')[0]} to ${to.split(',')[0]} Connection Flight`,
-      price: Math.floor(Math.random() * 200) + 80,
+      price: Math.floor(Math.random() * 12000) + 6000,
       duration: `${Math.floor(Math.random() * 8) + 3}h ${Math.floor(Math.random() * 60)}m`,
       departure: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
       arrival: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
       stops: Math.floor(Math.random() * 2) + 1,
-      provider: ['British Airways', 'United Airlines', 'American Airlines', 'Qatar Airways', 'KLM'][Math.floor(Math.random() * 5)],
+      provider: ['Air India', 'IndiGo', 'SpiceJet', 'Vistara', 'Go Air'][Math.floor(Math.random() * 5)],
       rating: Math.floor(Math.random() * 2) + 3,
       reviews: Math.floor(Math.random() * 1500) + 300
     });
@@ -109,12 +95,12 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
         type: 'train',
         icon: <Route className="h-5 w-5" />,
         name: `${from.split(',')[0]} to ${to.split(',')[0]} Express Train`,
-        price: Math.floor(Math.random() * 100) + 30,
+        price: Math.floor(Math.random() * 5000) + 1500,
         duration: `${Math.floor(Math.random() * 10) + 2}h ${Math.floor(Math.random() * 60)}m`,
         departure: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
         arrival: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
         stops: Math.floor(Math.random() * 5),
-        provider: ['Eurostar', 'Amtrak', 'Deutsche Bahn', 'TGV', 'JR East'][Math.floor(Math.random() * 5)],
+        provider: ['Indian Railways', 'Rajdhani Express', 'Shatabdi Express', 'Duronto Express', 'Jan Shatabdi'][Math.floor(Math.random() * 5)],
         rating: Math.floor(Math.random() * 15) / 10 + 3.5,
         reviews: Math.floor(Math.random() * 1000) + 200
       });
@@ -126,12 +112,12 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
         type: 'bus',
         icon: <Navigation className="h-5 w-5" />,
         name: `${from.split(',')[0]} to ${to.split(',')[0]} Bus Service`,
-        price: Math.floor(Math.random() * 50) + 15,
+        price: Math.floor(Math.random() * 3000) + 800,
         duration: `${Math.floor(Math.random() * 15) + 5}h ${Math.floor(Math.random() * 60)}m`,
         departure: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
         arrival: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
         stops: Math.floor(Math.random() * 3) + 1,
-        provider: ['Greyhound', 'Flixbus', 'Megabus', 'National Express', 'ALSA'][Math.floor(Math.random() * 5)],
+        provider: ['KSRTC', 'APSRTC', 'MSRTC', 'RedBus', 'VRL Travels'][Math.floor(Math.random() * 5)],
         rating: Math.floor(Math.random() * 10) / 10 + 3,
         reviews: Math.floor(Math.random() * 800) + 100
       });
@@ -217,7 +203,10 @@ const TransportationOptions: React.FC<TransportationOptionsProps> = ({
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-travel-blue">${option.price}</div>
+                    <div className="font-bold text-travel-blue flex items-center justify-end">
+                      <IndianRupee className="h-3 w-3 mr-1" />
+                      {option.price.toLocaleString('en-IN')}
+                    </div>
                     <div className="text-sm">{option.duration}</div>
                   </div>
                 </div>

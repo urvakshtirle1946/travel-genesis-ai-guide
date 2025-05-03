@@ -33,6 +33,8 @@ export type TransportOption = {
   arrival: string;
   stops: number;
   icon: React.ReactNode;
+  rating?: number;
+  reviews?: number;
 };
 
 export type Interest = {
