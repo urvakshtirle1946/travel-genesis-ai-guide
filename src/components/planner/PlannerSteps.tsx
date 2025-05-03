@@ -15,7 +15,7 @@ interface PlannerStepsProps {
   step: number;
   tripData: TripData;
   itinerary: any;
-  suggestedBudget: number;
+  suggestedBudget: { min: number; max: number; average: number };
   totalTripCost: number;
   showAdditionalOptions: boolean;
   nextStep: () => void;
@@ -25,8 +25,8 @@ interface PlannerStepsProps {
   updateStartDate: (date: Date) => void;
   updateEndDate: (date: Date) => void;
   updateBudgetType: (type: 'fixed' | 'flexible') => void;
-  updateBudget: (budget: number) => void;
-  updateTotalBudget: (budget: number) => void;
+  updateBudget: (budget: number[]) => void;
+  updateTotalBudget: (budget: number[]) => void;
   updateInterests: (interest: string, checked: boolean) => void;
   updateTransportation: (option: any) => void;
   saveTrip: () => Promise<void>;

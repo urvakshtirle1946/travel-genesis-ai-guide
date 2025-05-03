@@ -17,6 +17,7 @@ export const useTripBudget = (
     setBudgetType(type);
   };
 
+  // Update to accept number[] to match the StepBudget component's expected prop type
   const updateBudget = (value: number[]) => {
     setBudget(value[0]);
     
@@ -27,6 +28,7 @@ export const useTripBudget = (
     }
   };
 
+  // Update to accept number[] to match the StepBudget component's expected prop type
   const updateTotalBudget = (value: number[]) => {
     const newTotalBudget = value[0];
     const days = calculateTripDuration(startDate, endDate) || 1;

@@ -60,6 +60,11 @@ export type HotelOption = {
   checkInAvailable: boolean;
   images: string[];
   availability: 'high' | 'medium' | 'low';
+  // Add missing properties
+  type: string;
+  description: string;
+  deals: string[];
+  location?: string;
 };
 
 export type ShoppingOption = {

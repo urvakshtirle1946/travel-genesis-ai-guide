@@ -10,7 +10,7 @@ export const useTripLocation = (
   const location = useLocation();
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
-  const [suggestedBudget, setSuggestedBudget] = useState({ min: 2500, max: 15000, average: 5000 });
+  const [suggestedBudget, setSuggestedBudget] = useState<{ min: number; max: number; average: number }>({ min: 2500, max: 15000, average: 5000 });
 
   // Check for query parameters when the component mounts
   useEffect(() => {
