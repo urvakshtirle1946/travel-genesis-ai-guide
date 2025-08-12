@@ -1,7 +1,7 @@
 # Welcome to your project
 
 # Project Details:
-Url: https://internship-management-system-llpu.vercel.app/
+Url: https://travel-genesis-ai-guide.vercel.app/
 
 ## How can I edit this code?
 
